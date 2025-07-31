@@ -55,28 +55,45 @@ def wait_until(
 
 if __name__ == "__main__":
     
-    d = u2.connect("A3KUVB2428008483")# A3KUVB2428008483
+    d = u2.connect("A3KUVB2428008483")# A3KUVB2428008483, 9a5dbfaf
     handler = PopupHandler(d)
     swipe = SmartSwipe(d)
     watcher = AdWatcher(d)
-
-    # 启动后台线程运行监控
-    monitor_thread = threading.Thread(
-        target=handler.monitor_popups,
-        daemon=True  # 设置为守护线程（主程序退出时自动结束）
-    )
-    # monitor_thread.start()
-    
 
     def Start_working(apps):
         """开始工作"""
         for name, app in apps:
             if name == "快手极速版":
                 # try:
-                d.app_start(app)
-                time.sleep(5)
-                click_by_xpath_text(d, "去赚钱")
-                time.sleep(5)
+                
+                # 启动APP
+                d.app_start(app, wait=True)
+                # 点击去赚钱
+                if click_by_xpath_text(d, "去赚钱"):
+                
+                    if wait_until(d(textContains="今日签到可领"), timeout=3):
+                        print("🔄 点击签到")
+                        element = d(textContains="立即签到", className="android.widget.Button")
+                        element.click()
+                        time.sleep(1)
+                    
+                    if wait_until(d(textContains="翻倍任务开启"), timeout=3):
+                        print("🔄 点击翻倍任务")
+                        element = d(textContains="去看内容", className="android.widget.Button")
+                        element.click()
+                        time.sleep(1)
+                        watcher.watch_ad()
+                
+                if click_by_xpath_text(d, "连续打卡白拿手机"):
+                    print("🔄 点击连续打卡白拿手机")
+                    btn = d(text="去打卡", className="android.widget.Button")
+                    if btn.wait(timeout=3.0):
+                        btn.click()
+                        time.sleep(1)
+                        d.press("back")
+                    else:
+                        d.press("back")
+                        time.sleep(1)
 
                 if click_by_xpath_text(d, "点可领"):
                     watcher.watch_ad() 

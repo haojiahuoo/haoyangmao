@@ -5,7 +5,7 @@ class PopupHandler:
     def __init__(self, device):
         self.d = device
         self.common_popups = [
-            # {"name": "翻倍任务开启", "text": "去看广告"},
+            {"name": "翻倍任务开启", "text": "去看广告"},
             # {"name": "翻倍任务开启", "text": "去看内容"},
             # {"name": "权限请求", "text": "允许"},
             # {"name": "今日签到可领", "text": "立即签到"},
@@ -46,4 +46,10 @@ class PopupHandler:
             time.sleep(interval)
 
 
-   
+# # 启动后台线程运行监控
+# monitor_thread = threading.Thread(
+#     target=handler.monitor_popups,
+#     daemon=True  # 设置为守护线程（主程序退出时自动结束）
+# )
+# monitor_thread.start()
+      
