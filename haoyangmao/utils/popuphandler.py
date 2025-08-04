@@ -5,8 +5,7 @@ class PopupHandler:
     def __init__(self, device):
         self.d = device
         self.common_popups = [
-            {"name": "翻倍任务开启", "text": "去看广告"},
-            # {"name": "翻倍任务开启", "text": "去看内容"},
+            {"name": "添加到主屏幕", "text": "取消"},
             # {"name": "权限请求", "text": "允许"},
             # {"name": "今日签到可领", "text": "立即签到"},
             # {"name": "广告弹窗", "text": "跳过"},
