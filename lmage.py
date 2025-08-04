@@ -3,13 +3,7 @@ import numpy as np
 from cnocr import CnOcr
 from appium import webdriver
 from typing import List, Dict, Tuple
-from appium.options.android import UiAutomator2Options
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.action_chains import ActionChains
-from appium.webdriver.common.appiumby import AppiumBy
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+
 
 class AppiumSmartController:
     def __init__(self):
