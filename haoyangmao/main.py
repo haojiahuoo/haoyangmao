@@ -7,24 +7,34 @@ from utils.ad_watcher import AdWatcher
 
 def click_by_xpath_text(
     d: u2.Device,
-    text: str,
+    texts: Union[str, list[str]],  # 支持 str 或 list[str]
     timeout: float = 10.0,
     raise_error: bool = False,
     log_prefix: str = ""
 ) -> bool:
     """
-    通过 XPath 模糊匹配文本点击元素
+    通过 XPath 点击匹配任意一个文本的元素（支持单文本或多文本的"或"逻辑）
+    :param d: uiautomator2 Device 对象
+    :param texts: 要匹配的文本（字符串或字符串列表）
+    :param timeout: 超时时间（秒）
+    :param raise_error: 是否在失败时抛出异常
+    :param log_prefix: 日志前缀
+    :return: 是否点击成功
     """
-    selector = d.xpath(f'//*[contains(@text, "{text}")]')
+    # 统一转成列表处理
+    texts_list = [texts] if isinstance(texts, str) else texts
+    xpath_conditions = " or ".join([f'contains(@text, "{t}")' for t in texts_list])
+    selector = d.xpath(f"//*[{xpath_conditions}]")
+    
     try:
         if selector.wait(timeout=timeout):
             selector.click()
-            print(f"{log_prefix}[成功] 点击: '{text}'")
+            print(f"{log_prefix}[成功] 点击: {texts_list}")  # 改为 texts_list
             return True
         else:
-            print(f"{log_prefix}[失败] 未找到: '{text}'")
+            print(f"{log_prefix}[失败] 未找到: {texts_list}")  # 改为 texts_list
             if raise_error:
-                raise TimeoutError(f"未找到文本: '{text}'")
+                raise TimeoutError(f"未找到文本: {texts_list}")  # 改为 texts_list
             return False
     except Exception as e:
         print(f"{log_prefix}[异常] 错误: {e}")
@@ -55,7 +65,7 @@ def wait_until(
 
 if __name__ == "__main__":
     
-    d = u2.connect("A3KUVB2428008483")# A3KUVB2428008483, 9a5dbfaf
+    d = u2.connect("9a5dbfaf")# A3KUVB2428008483, 9a5dbfaf
     handler = PopupHandler(d)
     swipe = SmartSwipe(d)
     watcher = AdWatcher(d)
@@ -69,8 +79,11 @@ if __name__ == "__main__":
                 # 启动APP
                 d.app_start(app, wait=True)
                 # 点击去赚钱
-                if click_by_xpath_text(d, "去赚钱"):
+                click_by_xpath_text(d, "去赚钱")
                 
+                if wait_until(d.xpath('//*[contains(@text, "猜你喜欢")]'), timeout=20):
+                    print("✅ 加载完成，开始工作")
+            
                     if wait_until(d(textContains="今日签到可领"), timeout=3):
                         print("🔄 点击签到")
                         element = d(textContains="立即签到", className="android.widget.Button")
@@ -83,15 +96,16 @@ if __name__ == "__main__":
                         element.click()
                         time.sleep(1)
                         watcher.watch_ad()
-                
-                if click_by_xpath_text(d, "连续打卡白拿手机"):
+                            
+                if click_by_xpath_text(d, ["拿好礼 今日可打卡", "huge_sign_marketing_popup"], timeout=3):
                     print("🔄 点击连续打卡白拿手机")
-                    btn = d(text="去打卡", className="android.widget.Button")
-                    if btn.wait(timeout=3.0):
-                        btn.click()
+                    
+                    if wait_until(d.xpath('//*[contains(@text, "去签到")]')):
+                        d.xpath('//*[contains(@text, "去签到")]').click()
                         time.sleep(1)
                         d.press("back")
                     else:
+                        
                         d.press("back")
                         time.sleep(1)
 

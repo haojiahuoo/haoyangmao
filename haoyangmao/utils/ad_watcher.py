@@ -69,7 +69,7 @@ class AdWatcher:
                         time.sleep(1)
                         continue  # 继续监控广告
                     
-                if self.d(textContains="我的金币").exists:
+                if self.d(textContains="猜你喜欢").exists:
                     print("✅ 全部任务已完成，返回首页")
                     break
                 else:
