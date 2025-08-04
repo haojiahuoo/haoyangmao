@@ -40,7 +40,7 @@ def click_by_xpath_text(
         return False
 
 
-def wait_exists(selector, timeout=5, interval=0.5) -> bool:
+def wait_exists(selector, timeout=3, interval=0.1) -> bool:
     """
     快速判断 selector 是否在指定时间内存在，避免长时间阻塞。
     
@@ -52,7 +52,7 @@ def wait_exists(selector, timeout=5, interval=0.5) -> bool:
     elapsed = 0
     while elapsed < timeout:
         try:
-            if selector.info:
+            if selector.exists(timeout=0):  # 立即返回，不等待
                 return True
         except:
             pass

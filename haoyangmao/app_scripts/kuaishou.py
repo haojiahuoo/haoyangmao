@@ -37,6 +37,12 @@ def KuaiShouApp(app_startup_package):
                     element.click()
                     time.sleep(1)
             
+            if wait_exists(d(textContains="新用户必得")):
+                print("🗨️ 发现-新用户必得-弹窗")
+                time.sleep(2)
+                d.xpath("(//android.widget.ImageView)[2]").click()
+                print("🔙 返回上一层")
+
             if wait_exists(d(textContains="翻倍任务开启")):
                 print("🗨️ 发现-翻倍任务-弹窗")
                 element = d(textContains="去看内容", className="android.widget.Button")
@@ -60,15 +66,17 @@ def KuaiShouApp(app_startup_package):
                 
         if click_by_xpath_text(d, ["拿好礼 今日可打卡", "huge_sign_marketing_popup"]):
             print("🔄 点击连续打卡白拿手机")
-            
             if wait_exists(d.xpath('//*[contains(@text, "去签到")]')):
                 d.xpath('//*[contains(@text, "去签到")]').click()
-                time.sleep(1)
+                time.sleep(2)
                 d.press("back")
-            else:   
-                
-                d.press("back")
-                time.sleep(1)
+                while True:
+                    if d(textContains="猜你喜欢").exists:
+                        print("✅ 全部任务已完成，返回首页")
+                        break
+                    else:   
+                        d.press("back")
+                        time.sleep(2)
 
         if click_by_xpath_text(d, "点可领"):
             aw.watch_ad() 

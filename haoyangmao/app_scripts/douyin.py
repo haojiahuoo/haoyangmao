@@ -10,8 +10,8 @@ def DouYinApp(app_startup_package):
     try:
         vc = VisualClicker(d)
         aw = DouYinAdWatcher(d)
-        time.sleep(5)
-        d(resourceId="com.ss.android.ugc.aweme.lite:id/d7y").click()
+        
+        click_by_xpath_text(d, "任务")
         time.sleep(10)
         
         vc.target_texts = ["已连续签到"]
