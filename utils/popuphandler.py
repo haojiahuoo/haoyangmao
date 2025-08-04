@@ -6,12 +6,6 @@ class PopupHandler:
         self.d = device
         self.common_popups = [
             {"name": "添加到主屏幕", "text": "取消"},
-            # {"name": "权限请求", "text": "允许"},
-            # {"name": "今日签到可领", "text": "立即签到"},
-            # {"name": "广告弹窗", "text": "跳过"},
-            # {"name": "系统提示", "text": "确定"},
-            # {"name": "系统提示", "text": "点我可领"},
-            # {"name": "翻倍任务开启", "text": "去看内容"}
         ]
     
     def check_and_handle_popup(self, timeout=3.0):

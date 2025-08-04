@@ -7,7 +7,7 @@ from utils.smart_swipe import SmartSwipe
 from Image_elements.visual_clicker import VisualClicker
 import random
 
-def JinRiTouTiaoApp():
+def JinRiTouTiaoApp(app_startup_package):
     aw = JinRiTouTiaoAdWatcher(d)
     ss = SmartSwipe(d)
     vc = VisualClicker(d)
@@ -26,21 +26,6 @@ def JinRiTouTiaoApp():
         time.sleep(10)    
         d.xpath('//*[@resource-id="com.ss.android.article.lite:id/a1q"]').click()
         time.sleep(10)
-    
-        if click_by_xpath_text(d, "+100"):
-            time.sleep(2)
-            if wait_exists(d(textContains="回到顶部")):
-                while True:
-                    ss.smart_swipe(direction="up")
-                    vc = VisualClicker(d, target_texts=["看视频再得"])
-                    matched_text = vc.match_text()
-                    if matched_text == "看视频再得":
-                        vc.find_and_click()
-                        aw.watch_ad()
-                        break
-                    
-                    wait_time = random.uniform(0.5, 1.5) 
-                    time.sleep(wait_time)
         
         if wait_exists(d(textContains="恭喜获得惊喜奖励")):
             print("🗨️ 发现-惊喜奖励-弹窗")
@@ -68,6 +53,21 @@ def JinRiTouTiaoApp():
             time.sleep(1)
             d.xpath('(//android.view.ViewGroup)[11]').click()
             aw.watch_ad()
+        
+        if click_by_xpath_text(d, "+100"):
+            time.sleep(2)
+            if wait_exists(d(textContains="回到顶部")):
+                while True:
+                    ss.smart_swipe(direction="up")
+                    vc = VisualClicker(d, target_texts=["看视频再得"])
+                    matched_text = vc.match_text()
+                    if matched_text == "看视频再得":
+                        vc.find_and_click()
+                        aw.watch_ad()
+                        break
+                    
+                    wait_time = random.uniform(0.5, 1.5) 
+                    time.sleep(wait_time)
         
         if click_by_xpath_text(d, "逛街最多再领"):
             if wait_exists(d(textContains="恭喜获得惊喜奖励")):

@@ -27,7 +27,7 @@ class AppiumSmartController:
         key_texts = []
         
         # 按钮特征：包含动作词且通常位于底部或右侧
-        button_keywords = ['点击','看广告','看视频赚金币']
+        button_keywords = ['看广告','看视频',"点击", "已连续签到", "签到领", "", "明日0点一键领金币", "明日签到立即", "新人签到领金币", "明天再来", "金币收益", "看视频再得", "开宝箱"]
         for res in ocr_results:
             text = res['text'].strip()
             if not text:

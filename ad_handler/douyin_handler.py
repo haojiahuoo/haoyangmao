@@ -51,6 +51,8 @@ class DouYinAdWatcher:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
                         time.sleep(2)
+                        if d.xpath('//*[@resource-id="app"]').exists:
+                            self.d.press("back")
                         # 尝试领取奖励
                         claim_xpath = " | ".join(
                             f'//*[contains(@text, "{text}")]' for text in self.claim_texts
@@ -65,17 +67,11 @@ class DouYinAdWatcher:
                                 claim.click()
                                 print("✅ 点击--领取奖励")
                                 time.sleep(1)
-                                continue  # 继续监控广告
-                                
-                                
-                                
-                    # if "直播" in elements[0].text:
-                    #     print("🗨️ 发现-直播-弹窗")
-                    #     if self.d(textContains="已领取").wait(timeout=35):
-                    #         print("✅ 检测到--已领取, 任务完成")
-                    #         self.d.press("back")  # 返回
-                    #         print("✅ 返回主界面")
-                    #         time.sleep(2) 
+                                continue  # 继续监控广告        
+                            
+                if self.d(textContains="领奖提醒").exists and time.time() - start_time > 30:
+                    print("✅ 任务完成已返回任务页")
+                    break
                 
                 # 检查是否需要返回首页
                 vc = VisualClicker(d, target_texts=["金币收益"])
