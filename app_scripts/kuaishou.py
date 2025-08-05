@@ -11,14 +11,10 @@ def KuaiShouApp(app_startup_package):
         
         if wait_exists(d(textContains="今日签到可领")):
             print("🗨️ 发现-签到-弹窗")
-            element = d(textContains="立即签到", className="android.widget.Button")
-            element.click()
+            click_by_xpath_text(d, "立即签到")
             time.sleep(1)
             
-            if wait_exists(d(textContains="点我领iPhone")):
-                print("🗨️ 发现-点我领iPhone-弹窗")
-                element = d(textContains="点我领iPhone")
-                element.click()
+            if click_by_xpath_text(d, "点我领iPhone"):
                 time.sleep(1)
                 if wait_exists(d.xpath('//*[contains(@text, "去签到")]')):
                     click_by_xpath_text(d, "去签到")
@@ -39,8 +35,7 @@ def KuaiShouApp(app_startup_package):
 
         if wait_exists(d(textContains="翻倍任务开启")):
             print("🗨️ 发现-翻倍任务-弹窗")
-            element = d(textContains="去看内容", className="android.widget.Button")
-            element.click()
+            click_by_xpath_text(d, "去看内容")
             time.sleep(1)
             aw.watch_ad()
             

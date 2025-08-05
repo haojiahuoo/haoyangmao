@@ -8,9 +8,9 @@ from app_scripts.fanqieyinyue import FanQeiYinYueApp
 from app_scripts.wukong import WuKongApp
 from app_scripts.jinritoutiao import JinRiTouTiaoApp
 # # try:
-# d = u2.connect("9a5dbfaf")
+d = u2.connect("9a5dbfaf")
 # # except:
-d = u2.connect("A3KUVB2428008483")
+# d = u2.connect("A3KUVB2428008483")
 
 handler = PopupHandler(d)
 
@@ -41,6 +41,12 @@ def Start_working(apps):
                 print("✅ 加载完成，开始工作")
                 d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/d7y"]').click()
                 time.sleep(10)
+        elif name == "悟空浏览器":
+            click_by_xpath_text(d, "金币")
+            time.sleep(10)
+                
+            
+            
     # 第二步：依次回到每个App进行操作
     for name, app_startup_package in apps:
         print(f"正式启动{name}APP并操作...")
@@ -53,14 +59,15 @@ def Start_working(apps):
             DouYinApp(app_startup_package)
         elif name == "今日头条":
             JinRiTouTiaoApp(app_startup_package)
+        elif name == "悟空浏览器":
+            WuKongApp(app_startup_package)
         # elif name == "西瓜视频":
         #     XiGuaApp(app_startup_package)  # 如果后面要加，记得实现这个函数
         # elif name == "火山小视频":
         #     HuoShanApp(app_startup_package)
         # elif name == "番茄畅听音乐":
         #     FanQeiYinYueApp(app_startup_package)    
-        # elif name == "悟空浏览器":
-        #     WuKongApp(app_startup_package)
+        
 
 # App 列表
 apps = [

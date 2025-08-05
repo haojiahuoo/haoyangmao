@@ -95,12 +95,12 @@ def DouYinApp(app_startup_package):
             print("✅ 点击--已领金币")
             time.sleep(2)
             
-            vc.target_texts = ["看广告", "开心收下"]
+            vc.target_texts = ["看广告视频", "开心收下"]
             matched_text = vc.match_text()
             
-            if matched_text in ["看广告", "开心收下"]:
+            if matched_text in ["看广告视频", "开心收下"]:
                 vc.find_and_click()
-                if matched_text == "看广告":
+                if matched_text == "看广告视频":
                     aw.watch_ad()
             else:
                 print("⚠️ 未匹配到任何目标文本")
