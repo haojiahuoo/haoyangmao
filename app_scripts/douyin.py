@@ -72,7 +72,7 @@ def DouYinApp(app_startup_package):
         elif matched_text == "今日待打卡":
             vc.find_and_click()
             click_by_xpath_text(d, "点击打卡")
-            time.sleep(2)
+            time.sleep(5)
             d.press("back")
         else:
             print("⚠️ 未匹配到任何目标文本")
@@ -89,6 +89,7 @@ def DouYinApp(app_startup_package):
         #     print("⚠️ 未匹配到任何目标文本")
         
         # 点击领宝箱
+        print('🔍 开始识别[宝箱任务]')
         vc.target_texts = ["点击领", "开宝箱"]
         if vc.find_and_click():
             print("✅ 点击--已领金币")

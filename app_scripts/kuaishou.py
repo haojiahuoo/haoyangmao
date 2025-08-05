@@ -26,10 +26,9 @@ def KuaiShouApp(app_startup_package):
                     time.sleep(1)
                     d.press("back")
                 
-            if wait_exists(d(textContains="去看视频")):
+            if wait_exists(d.xpath('//*[contains(@text, "去看视频")]')):
                 print("🗨️ 发现-去看视频-弹窗")
-                element = d(textContains="去看视频")
-                element.click()
+                click_by_xpath_text(d, "去看视频")
                 time.sleep(1)
         
         if wait_exists(d(textContains="新用户必得")):
@@ -61,6 +60,7 @@ def KuaiShouApp(app_startup_package):
                 
         if click_by_xpath_text(d, ["拿好礼 今日可打卡", "huge_sign_marketing_popup"]):
             print("🔄 点击连续打卡白拿手机")
+            time.sleep(5)
             if click_by_xpath_text(d, "去签到"):
                 time.sleep(2)
                 d.press("back")

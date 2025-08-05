@@ -1,7 +1,7 @@
 import uiautomator2 as u2
 import time
 from typing import Optional
-
+from utils.tools import *
 class KuaiShouAdWatcher:
     def __init__(self, d: u2.Device):
     
@@ -38,11 +38,25 @@ class KuaiShouAdWatcher:
                         
                     if "说点什么" in elements[0].text:
                         print("🗨️ 发现-直播-弹窗")
-                        if self.d(textContains="已领取"):
-                            print("✅ 检测到--已领取, 任务完成")
+                        while_start_time = time.time()
+                        task_completed = False
+                        
+                        while True:
+                            # 先检查是否已完成任务
+                            if self.d(textContains="已领取"):
+                                print("✅ 检测到--已领取, 任务完成")
+                                task_completed = True
+                                break
+                            # 再检查是否超时
+                            if time.time() - while_start_time >= 35:
+                                print("⏰ 超时35秒未检测到'已领取'")
+                                break  
+                            time.sleep(1)  # 避免频繁检查
+                        # 任务完成或超时后的处理
+                        if task_completed:
                             self.d.press("back")  # 返回
                             time.sleep(2)
-                            self.d(textContains="退出").click()  # 退出直播间
+                            click_by_xpath_text(self.d, "退出直播间")  # 退出直播间
                             print("✅ 返回主界面")
                             time.sleep(2)
                             
