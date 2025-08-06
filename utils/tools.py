@@ -27,19 +27,23 @@ def click_by_xpath_text(
     try:
         if selector.wait(timeout=timeout):
             selector.click()
+            print("第一次点击")
             if wait_gone:
                 if selector.wait_gone(timeout=timeout):
                     print(f"{log_prefix}[点击成功]: {texts_list}")  # 改为 texts_list
                     return True
                 else:
                     selector.click()
+                    print("第二次点击")
                     if selector.wait_gone(timeout=timeout):
                         print(f"{log_prefix}[点击成功]: {texts_list}")
                         return True
                     else:
                         print(f"{log_prefix} 点击失败  [元素未消失]: {texts_list}")
+                        
             else:
                 print(f"{log_prefix}元素不会消失 [点击成功]: {texts_list}")
+                return True
         else:
             print(f"{log_prefix}[失败] 未找到: {texts_list}")  # 改为 texts_list
             if raise_error:

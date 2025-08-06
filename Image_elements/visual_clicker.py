@@ -14,9 +14,9 @@ class VisualClicker:
         self.d.screenshot(path)
         return path
 
-    def find_and_click(self, retries=2, delay=2) -> bool:
+    def find_and_click(self, retries=1, delay=2) -> bool:
         for attempt in range(retries):
-            print(f"🔍 第{attempt + 1}次识别目标文本并尝试点击...")
+            print(f" 第{attempt + 1}次识别目标文本并尝试点击...")
             screen_path = self.screenshot(f'screen_click_{attempt}.png')
             elements = self.ocr_helper.detect_clickable_elements(screen_path)
 

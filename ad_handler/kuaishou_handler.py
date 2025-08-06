@@ -1,5 +1,5 @@
 import uiautomator2 as u2
-import time
+import time,random
 from typing import Optional
 from utils.tools import *
 class KuaiShouAdWatcher:
@@ -18,9 +18,7 @@ class KuaiShouAdWatcher:
         self.claim_texts = [
             "明日签到可领",
             "再看1个广告再得",
-            "恭喜完成观看任务",
-            "领取奖励"
-            
+            "恭喜完成观看任务" 
         ]
 
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
@@ -67,11 +65,8 @@ class KuaiShouAdWatcher:
                                 
                                 if "再看1个广告再得" in claims[0].text:
                                     print("🗨️ 发现-再看1个广告-弹窗")
-                                    claim = self.d(textContains="领取奖励")
-                                    claim.click()
-                                    print("✅ 点击--再看1个广告")
-                                    time.sleep(1)
-                                    continue  # 继续监控广告
+                                    click_by_xpath_text(self.d, "领取奖励")
+                                    
 
                             if click_by_xpath_text(self.d, "退出"):  # 退出直播间
                                 print("✅ 返回主界面")
@@ -91,12 +86,8 @@ class KuaiShouAdWatcher:
                             
                             if "再看1个广告再得" in claims[0].text:
                                 print("🗨️ 发现-再看1个广告-弹窗")
-                                claim = self.d(textContains="领取奖励")
-                                claim.click()
-                                print("✅ 点击--再看1个广告")
-                                time.sleep(1)
-                                continue  # 继续监控广告
-                    
+                                click_by_xpath_text(self.d, "领取奖励")
+                            
                     if "开宝箱奖励已到账" in elements[0].text:
                         print("🗨️ 发现-开宝箱奖励-弹窗")
                         element = self.d.xpath('//*[contains(@text, "开宝箱奖励已到账")]/following-sibling::*[contains(@text, "去看广告得")]')
@@ -113,11 +104,7 @@ class KuaiShouAdWatcher:
                             
                             if "再看1个广告再得" in claims[0].text:
                                 print("🗨️ 发现-再看1个广告-弹窗")
-                                claim = self.d(textContains="领取奖励")
-                                claim.click()
-                                print("✅ 点击--再看1个广告")
-                                time.sleep(1)
-                                continue  # 继续监控广告
+                                click_by_xpath_text(self.d, "领取奖励")
                         
                     if "再看一个" in elements[0].text:
                         print("🗨️ 发现-再看一个-弹窗")

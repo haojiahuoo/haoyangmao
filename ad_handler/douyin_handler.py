@@ -1,25 +1,19 @@
 import uiautomator2 as u2
-import time
+import time, random
 from typing import Optional
 from Image_elements.visual_clicker import VisualClicker
 from utils.device import d
-
+from utils.tools import *
 class DouYinAdWatcher:
     def __init__(self, d: u2.Device):
     
         self.d = d
         self.completion_titles = [
-            "任务完成",
-            "开宝箱奖励已到账",
-            "已成功领取",
-            "今日签到可领",
-            "再看一个",
-            "领取成功", #11 
+            "领取成功", 
             "说点什么",
             "恭喜累计获得奖励",
         ]
-     
-    def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
+    def watch_ad(self, timeout: float = 500, check_interval: float = 3.0) -> bool:
         vc = VisualClicker(d)
         time.sleep(10)  # 等待界面稳定
         print("[开启刷广告模式.....]")
@@ -36,34 +30,44 @@ class DouYinAdWatcher:
                     
                     if "恭喜累计获得奖励" in elements[0].text:
                         print("🗨️ 发现-累计获奖-弹窗")
-                        element = self.d(textContains="评价并收下金币")
-                        element.click()
-                        print("✅ 点击--收下金币")
-                        time.sleep(1)
-                        continue  # 继续监控广告
+                        click_by_xpath_text(d, "评价并收下金币")
                         
                     if "领取成功" in elements[0].text:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
-                        time.sleep(2)
-                    
-                    if d.xpath('//*[@resource-id="app"]').exists:
-                        self.d.press("back")
+                        time.sleep(random.uniform(1, 3))
+                        click_by_xpath_text(d, "领取奖励")
 
-                    if "再看一个" in elements[0].text:
-                        print("🗨️ 发现-再看一个-弹窗")
-                        claim = self.d(textContains="领取奖励")
-                        claim.click()
-                        print("✅ 点击--领取奖励")
-                        time.sleep(1)
-                        continue  # 继续监控广告        
-                            
+                    if "说点什么" in elements[0].text:
+                        print("🗨️ 发现-直播-弹窗")
+                        while_start_time = time.time()
+                        task_completed = False
+                        while True:
+                            # 先检查是否已完成任务
+                            if self.d(textContains="已领取"):
+                                print("✅ 检测到--已领取, 任务完成")
+                                task_completed = True
+                                break
+                            # 再检查是否超时
+                            if time.time() - while_start_time >= 35:
+                                print("⏰ 超时35秒未检测到'已领取'")
+                                break  
+                            time.sleep(1)  # 避免频繁检查
+                        # 任务完成或超时后的处理
+                        if task_completed:
+                            self.d.press("back")  # 返回
+                            time.sleep(2)
+
+
+                if d.xpath('//*[@resource-id="app"]').exists:
+                        self.d.press("back")
+                        
                 if self.d(textContains="领奖提醒").exists and time.time() - start_time > 30:
                     print("✅ 任务完成已返回任务页")
                     break
                 
                 # 检查是否需要返回首页
-                vc = VisualClicker(d, target_texts=["金币收益"])
+                vc.target_texts = ["金币收益"]
                 matched_text = vc.match_text()
                 if matched_text == "金币收益":
                     print("✅ 全部任务已完成，返回首页")
