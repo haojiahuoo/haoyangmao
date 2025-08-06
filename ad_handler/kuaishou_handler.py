@@ -25,6 +25,7 @@ class KuaiShouAdWatcher:
 
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
         time.sleep(10)  # 等待界面稳定
+        print("[开启刷广告模式.....]")
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
@@ -56,9 +57,25 @@ class KuaiShouAdWatcher:
                         if task_completed:
                             self.d.press("back")  # 返回
                             time.sleep(2)
-                            click_by_xpath_text(self.d, "退出直播间")  # 退出直播间
-                            print("✅ 返回主界面")
-                            time.sleep(2)
+                            
+                            claim_xpath = " | ".join(
+                                f'//*[contains(@text, "{text}")]' for text in self.claim_texts
+                            )
+                            if claims := self.d.xpath(claim_xpath).all():
+                                for i, claim in enumerate(claims, 1):
+                                    print(f"匹配元素2 {i}/{len(claims)}: {claim.text}")
+                                
+                                if "再看1个广告再得" in claims[0].text:
+                                    print("🗨️ 发现-再看1个广告-弹窗")
+                                    claim = self.d(textContains="领取奖励")
+                                    claim.click()
+                                    print("✅ 点击--再看1个广告")
+                                    time.sleep(1)
+                                    continue  # 继续监控广告
+
+                            if click_by_xpath_text(self.d, "退出"):  # 退出直播间
+                                print("✅ 返回主界面")
+                                time.sleep(2)
                             
                     if "已成功领取" in elements[0].text:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
@@ -121,5 +138,7 @@ class KuaiShouAdWatcher:
                 continue
         
         print("⏰ 广告观看超时")
-        return
+        if self.d(textContains="猜你喜欢").exists:
+            self.d.press("back")
+            return
 

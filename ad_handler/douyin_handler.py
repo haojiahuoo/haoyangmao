@@ -18,16 +18,11 @@ class DouYinAdWatcher:
             "说点什么",
             "恭喜累计获得奖励",
         ]
-        self.claim_texts = [
-            "恭喜累计获得奖励",
-            "再看一个"
-            
-        ]
-
+     
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
         vc = VisualClicker(d)
         time.sleep(10)  # 等待界面稳定
-        
+        print("[开启刷广告模式.....]")
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
@@ -51,23 +46,17 @@ class DouYinAdWatcher:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
                         time.sleep(2)
-                        if d.xpath('//*[@resource-id="app"]').exists:
-                            self.d.press("back")
-                        # 尝试领取奖励
-                        claim_xpath = " | ".join(
-                            f'//*[contains(@text, "{text}")]' for text in self.claim_texts
-                        )
-                        if claims := self.d.xpath(claim_xpath).all():
-                            for i, claim in enumerate(claims, 1):
-                                print(f"匹配元素2 {i}/{len(claims)}: {claim.text}")
-                            
-                            if "再看一个" in claims[0].text:
-                                print("🗨️ 发现-再看一个-弹窗")
-                                claim = self.d(textContains="领取奖励")
-                                claim.click()
-                                print("✅ 点击--领取奖励")
-                                time.sleep(1)
-                                continue  # 继续监控广告        
+                    
+                    if d.xpath('//*[@resource-id="app"]').exists:
+                        self.d.press("back")
+
+                    if "再看一个" in elements[0].text:
+                        print("🗨️ 发现-再看一个-弹窗")
+                        claim = self.d(textContains="领取奖励")
+                        claim.click()
+                        print("✅ 点击--领取奖励")
+                        time.sleep(1)
+                        continue  # 继续监控广告        
                             
                 if self.d(textContains="领奖提醒").exists and time.time() - start_time > 30:
                     print("✅ 任务完成已返回任务页")

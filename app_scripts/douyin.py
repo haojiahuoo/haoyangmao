@@ -11,7 +11,11 @@ def DouYinApp(app_startup_package):
         vc = VisualClicker(d)
         aw = DouYinAdWatcher(d)
         
-        time.sleep(10)
+        if wait_exists(d(textContains="消息")):
+            print("✅ 加载完成，开始工作")
+            d.xpath('//*[@resource-id="com.ss.android.ugc.aweme.lite:id/d7y"]').click()
+        
+        time.sleep(15)
         print("🔍 开始识别[已连续签到]")
         vc.target_texts = ["已连续签到"]
         if vc.find_and_click():

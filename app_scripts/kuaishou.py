@@ -8,23 +8,24 @@ aw = KuaiShouAdWatcher(d)
 
 def KuaiShouApp(app_startup_package):
     try:
-        
+        click_by_xpath_text(d, "去赚钱", wait_gone=False)
+        time.sleep(15)
         if wait_exists(d(textContains="今日签到可领")):
             print("🗨️ 发现-签到-弹窗")
-            click_by_xpath_text(d, "立即签到")
+            click_by_xpath_text(d, "立即签到", timeout=20)
             time.sleep(1)
             
-            if click_by_xpath_text(d, "点我领iPhone"):
+            if click_by_xpath_text(d, "点我领iPhone", timeout=20):
                 time.sleep(1)
                 if wait_exists(d.xpath('//*[contains(@text, "去签到")]')):
-                    click_by_xpath_text(d, "去签到")
-                    click_by_xpath_text(d, "我知道了")
+                    click_by_xpath_text(d, "去签到", timeout=20)
+                    click_by_xpath_text(d, "我知道了", timeout=20)
                     time.sleep(1)
                     d.press("back")
                 
             if wait_exists(d.xpath('//*[contains(@text, "去看视频")]')):
                 print("🗨️ 发现-去看视频-弹窗")
-                click_by_xpath_text(d, "去看视频")
+                click_by_xpath_text(d, "去看视频", timeout=20)
                 time.sleep(1)
         
         if wait_exists(d(textContains="新用户必得")):

@@ -6,6 +6,7 @@ def click_by_xpath_text(
     d: u2.Device,
     texts: Union[str, list[str]],  # 支持 str 或 list[str]
     timeout: float = 10.0,
+    wait_gone: bool =True,
     raise_error: bool = False,
     log_prefix: str = ""
 ) -> bool:
@@ -26,8 +27,19 @@ def click_by_xpath_text(
     try:
         if selector.wait(timeout=timeout):
             selector.click()
-            print(f"{log_prefix}[成功] 点击: {texts_list}")  # 改为 texts_list
-            return True
+            if wait_gone:
+                if selector.wait_gone(timeout=timeout):
+                    print(f"{log_prefix}[点击成功]: {texts_list}")  # 改为 texts_list
+                    return True
+                else:
+                    selector.click()
+                    if selector.wait_gone(timeout=timeout):
+                        print(f"{log_prefix}[点击成功]: {texts_list}")
+                        return True
+                    else:
+                        print(f"{log_prefix} 点击失败  [元素未消失]: {texts_list}")
+            else:
+                print(f"{log_prefix}元素不会消失 [点击成功]: {texts_list}")
         else:
             print(f"{log_prefix}[失败] 未找到: {texts_list}")  # 改为 texts_list
             if raise_error:
