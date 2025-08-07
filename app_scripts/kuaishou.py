@@ -9,8 +9,9 @@ aw = KuaiShouAdWatcher(d)
 def KuaiShouApp(app_startup_package):
     try:
         click_by_xpath_text(d, "去赚钱", wait_gone=False)
-        if click_by_xpath_text(d, "猜你喜欢",wait_gone=False):
+        if click_by_xpath_text(d, "猜你喜欢", timeout=20, wait_gone=False):
             print("✅ 加载完成，开始工作....")
+            time.sleep(20) # 等待页面稳定
 
             if wait_exists(d(textContains="今日签到可领")):
                 print("🗨️ 发现-签到-弹窗")

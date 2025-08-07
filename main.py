@@ -53,7 +53,7 @@ def Start_working(apps):
 # App 列表
 apps = [
 ("快手极速版", "com.kuaishou.nebula"),
-# ("抖音极速版", "com.ss.android.ugc.aweme.lite"),
+("抖音极速版", "com.ss.android.ugc.aweme.lite"),
 # ("今日头条", "com.ss.android.article.lite"),
 # ("番茄畅听音乐", "com.xs.fm.lite"),
 ("西瓜视频", "com.ss.android.article.video"),

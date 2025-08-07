@@ -20,20 +20,15 @@ def DouYinApp(app_startup_package):
             print("✅ 加载完成，开始工作")
 
             time.sleep(10)
-            print("⏳ 开始识别[已连续签到]")
-            vc.target_texts = ["已连续签到"]
+            vc.target_texts = ["签到领"]
+            print("识别签到领")
             if vc.find_and_click():
-                print("✅ 点击--已连续签到")
-                time.sleep(2)
-                vc.target_texts = ["签到领"]
-                print("识别签到领")
-                if vc.find_and_click():
-                    print("✅ 点击--签到领")
-                time.sleep(2)
-                vc.target_texts = ["看广告"]
-                if vc.find_and_click():
-                    print("✅ 点击--看广告")
-                    aw.watch_ad()
+                print("✅ 点击--签到领")
+            time.sleep(2)
+            vc.target_texts = ["看广告"]
+            if vc.find_and_click():
+                print("✅ 点击--看广告")
+                aw.watch_ad()
             
             print("⏳ 开始识别[新人签到领大额金币]弹窗")
             vc.target_texts = ["立即签到+"]
