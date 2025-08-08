@@ -11,14 +11,18 @@ def XiGuaApp(app_startup_package):
         vc = VisualClicker(d)
         aw = XiGuaAdWatcher(d)
         
-        if wait_exists(d(textContains="我的")):
-            d.xpath('//*[@resource-id="com.ss.android.article.video:id/dee"]').click()
-        
+
+        target = d.xpath('//android.widget.RelativeLayout[3]//android.widget.ImageView[contains(@resource-id, "com.ss.android.article.video:id")]')
+        target.click(timeout=5)
+
         vc.target_texts = ["金币收益"]
         matched_text = vc.match_text()
         if matched_text == "金币收益":
+            print("⏳ 等待20秒让网页稳定....")
+            time.sleep(20)
             print("✅ 加载完成，开始工作")
-
+            
+            
             print("⏳ 开始识别[签到7天领金币]弹窗")
             vc.target_texts = ["立即签到+"]
             if vc.find_and_click():
@@ -27,6 +31,29 @@ def XiGuaApp(app_startup_package):
                 if vc.find_and_click():
                     print("✅ 点击--看广告视频")
                     aw.watch_ad()
+                    
+            print("⏳ 开始识别[预约领金币]弹窗")
+            vc.target_texts = ["预约领金币"]
+            matched_text = vc.match_text()
+            if matched_text  == "预约领金币":
+                click_by_xpath_text(d, "立即领取")
+                print("✅ 开始领取流程")
+                click_by_xpath_text(d, "一键领取", wait_gone=False)
+                click_by_xpath_text(d, "开心收下")
+                click_by_xpath_text(d, "立即预约领取", wait_gone=False)
+                click_by_xpath_text(d, "提醒我来领")
+                click_by_xpath_text(d, "领取奖励")
+                aw.watch_ad()
+                d.press("back")
+            else:
+                print("⚠️ 未匹配到任何目标文本")
+                
+                
+            pos = vc.find_text_position("日常任务")
+            if pos:
+                x, y = pos
+                # 拖动到顶部（比如 y=100）
+                d.swipe(x, y, x, 600, 0.3)
 
             # 签到预约领金币
             vc.target_texts = ["明日0点", "24点前"]
@@ -38,9 +65,9 @@ def XiGuaApp(app_startup_package):
             elif matched_text  == "24点前":
                 print("✅ 开始领取流程")
                 vc.find_and_click()
-                click_by_xpath_text(d, "一键领取")
+                click_by_xpath_text(d, "一键领取", wait_gone=False)
                 click_by_xpath_text(d, "开心收下")
-                click_by_xpath_text(d, "立即预约领取")
+                click_by_xpath_text(d, "立即预约领取", wait_gone=False)
                 click_by_xpath_text(d, "提醒我来领")
                 click_by_xpath_text(d, "领取奖励")
                 aw.watch_ad()
@@ -59,15 +86,12 @@ def XiGuaApp(app_startup_package):
                 
                 vc.target_texts = ["看广告视频", "开心收下"]
                 matched_text = vc.match_text()
-                
-                if matched_text in ["看广告视频", "开心收下"]:
+                if matched_text == "看广告视频":
                     vc.find_and_click()
-                    if matched_text == "看广告视频":
-                        aw.watch_ad()
-                else:
-                    print("⚠️ 未匹配到任何目标文本")
-            else:
-                print("⚠️ 未匹配到任何目标文本")
+                    aw.watch_ad()
+                elif matched_text == "开心收下":
+                    vc.find_and_click()
+                    d.press("back")
             
     finally:
         print("关闭西瓜...")

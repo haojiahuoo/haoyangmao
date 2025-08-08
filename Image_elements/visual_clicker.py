@@ -65,6 +65,27 @@ class VisualClicker:
                         return target
             time.sleep(delay)
         return ""
+    
+    def find_text_position(self, target_text: str, retries=2, delay=2):
+        """
+        查找指定文本的中心坐标（用于拖动或其他操作）
+        :param target_text: 要查找的文本
+        :return: (x, y) 坐标元组 或 None
+        """
+        for attempt in range(retries):
+            screen_path = self.screenshot(f'screen_pos_{attempt}.png')
+            elements = self.ocr_helper.detect_clickable_elements(screen_path)
+
+            for btn in elements.get("buttons", []):
+                text = btn["text"]
+                if target_text in text:
+                    cx = int(btn["center"][0] * self.screen_width)
+                    cy = int(btn["center"][1] * self.screen_height)
+                    print(f"🎯 文本 '{target_text}' 坐标: ({cx}, {cy})")
+                    return cx, cy
+            time.sleep(delay)
+        print(f"❌ 未找到文本 '{target_text}' 的坐标")
+        return None
 
     def __bool__(self):
         return self.exists()

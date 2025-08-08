@@ -3,6 +3,7 @@ import random
 import math
 from typing import Optional, Callable
 import uiautomator2 as u2
+from typing import Tuple, Union
 
 class SmartSwipe:
     def __init__(self, d: u2.Device):
@@ -170,3 +171,46 @@ class SmartSwipe:
                             duration_max=swipe_duration + 0.1)
             time.sleep(interval)
         return False
+    
+    def smart_drag(
+        d: u2.Device,
+        origin: Union[Tuple[int, int], u2.xpath.XPathSelector, u2._selector.Selector],
+        target: Union[Tuple[int, int], str] = "top",
+        duration: float = 0.5
+    ):
+        """
+        智能拖动函数，可支持坐标或 u2 元素拖动。
+
+        :param d: uiautomator2 设备对象
+        :param origin: 拖动起点，可以是 (x, y) 坐标 或 u2 元素对象（Selector）
+        :param target: 拖动目标，可以是 (x, y) 坐标，或字符串 "top"、"bottom"、"left"、"right"、"center"
+        :param duration: 拖动持续时间（秒）
+        """
+        # 获取起点坐标
+        if isinstance(origin, tuple):
+            from_x, from_y = origin
+        elif hasattr(origin, 'center'):
+            center = origin.center()
+            from_x, from_y = center.x, center.y
+        else:
+            raise TypeError("origin 必须是坐标 (x, y) 或 uiautomator2 元素")
+
+        # 获取目标坐标
+        w, h = d.window_size()
+        if isinstance(target, tuple):
+            to_x, to_y = target
+        elif isinstance(target, str):
+            target = target.lower()
+            to_x, to_y = {
+                "top":    (from_x, 100),
+                "bottom": (from_x, h - 100),
+                "left":   (100, from_y),
+                "right":  (w - 100, from_y),
+                "center": (w // 2, h // 2),
+            }.get(target, (from_x, from_y))  # 如果未识别字符串，保持原地
+        else:
+            raise TypeError("target 必须是坐标 (x, y) 或字符串方向（如 'top'）")
+
+        # 执行拖动
+        d.drag(from_x, from_y, to_x, to_y, duration=duration)
+        print(f"拖动：({from_x}, {from_y}) -> ({to_x}, {to_y})")

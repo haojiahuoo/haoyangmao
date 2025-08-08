@@ -12,6 +12,7 @@ class XiGuaAdWatcher:
         self.completion_titles = [
             "领取成功", 
             "说点什么",
+            "看广告已累计"
         ]
      
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
@@ -29,19 +30,30 @@ class XiGuaAdWatcher:
                     for i, element in enumerate(elements, 1):
                         print(f"匹配元素1 {i}/{len(elements)}: {element.text}")
                     
+                    if "看广告已累计" in elements[0].text:
+                        print("🗨️ 发现-累计获奖-弹窗")
+                        click_by_xpath_text(d, "评价并关闭")
+                        
                     if "领取成功" in elements[0].text:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
-                        vc.target_texts = ["评价并关闭"]
-                        vc.find_and_click()
-                    
+                        time.sleep(random.uniform(1, 3))
+                        click_by_xpath_text(d, "领取奖励")
+
                 if d.xpath('//*[@resource-id="app"]').exists:
                         self.d.press("back")  
-                            
-                # 检查是否需要返回首页
-                vc.target_texts = ["金币收益"]
+                
+                if self.d(textContains="领奖提醒").exists:
+                    print("✅ 任务完成已返回任务页")
+                    break  
+                if self.d(textContains="今日一键领取金币").exists:
+                    print("✅ 任务完成已返回任务页")
+                    break            
+                 # 检查是否需要返回首页
+                vc.target_texts = ["日常任务", "金币收益"]
                 matched_text = vc.match_text()
-                if matched_text == "金币收益":
+
+                if matched_text in ("日常任务", "金币收益") and time.time() - start_time > 30:
                     print("✅ 全部任务已完成，返回首页")
                     break
                 else:

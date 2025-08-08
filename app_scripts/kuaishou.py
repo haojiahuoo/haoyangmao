@@ -10,13 +10,19 @@ def KuaiShouApp(app_startup_package):
     try:
         click_by_xpath_text(d, "去赚钱", wait_gone=False)
         if click_by_xpath_text(d, "猜你喜欢", timeout=20, wait_gone=False):
-            print("✅ 加载完成，开始工作....")
-            time.sleep(20) # 等待页面稳定
+            print("⏳ 等待20秒让网页稳定....")
+            time.sleep(20)
+            print("✅ 加载完成，开始工作")
+            
+            if wait_exists(d(textContains="朋友推荐")):
+                print("🗨️ 发现-朋友推荐-弹窗")
+                d.xpath('//*[@text="朋友推荐"]/following-sibling::*[contains(@resource-id, "close_btn")]').click()
+                time.sleep(1)
 
             if wait_exists(d(textContains="今日签到可领")):
                 print("🗨️ 发现-签到-弹窗")
-                click_by_xpath_text(d, "立即签到", timeout=20)
-                time.sleep(1)
+                click_by_xpath_text(d, "立即签到", className="android.widget.Button")
+                time.sleep(1)                                   
                 
                 if click_by_xpath_text(d, "点我领iPhone", timeout=20):
                     time.sleep(1)
@@ -30,7 +36,12 @@ def KuaiShouApp(app_startup_package):
                     print("🗨️ 发现-去看视频-弹窗")
                     click_by_xpath_text(d, "去看视频", timeout=20)
                     time.sleep(1)
-            
+                    aw.watch_ad()
+                    if wait_exists(d.xpath('//*[contains(@text, "明日签到可领")]')):
+                        print("🗨️ 发现-去明日签-弹窗")
+                        click_by_xpath_text(d, xpaths = '//*[@text="明日签到可领"]/../../../following-sibling::*[contains(@class, "android.widget.Image")]')
+                        
+                    
             if wait_exists(d(textContains="新用户必得")):
                 print("🗨️ 发现-新用户必得-弹窗")
                 time.sleep(2)

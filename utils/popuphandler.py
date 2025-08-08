@@ -6,6 +6,8 @@ class PopupHandler:
         self.d = device
         self.common_popups = [
             {"name": "添加到主屏幕", "text": "取消"},
+            {"name": "送你一份新人福利", "text": "com.ss.android.article.lite.openliveplugin:id/saas_coupon_id_cancel"},
+            
         ]
     
     def check_and_handle_popup(self, timeout=3.0):
@@ -16,8 +18,9 @@ class PopupHandler:
             selectors = [
                 self.d(textContains=popup["text"]),
                 self.d(textMatches=f".*{popup['text']}.*"),
-                self.d.xpath(f'//*[contains(@text, "{popup["text"]}")]')
-            ]
+                self.d.xpath(f'//*[contains(@text, "{popup["text"]}")]'),
+                self.d.xpath(f'//*[@resource-id="{popup["text"]}"]')
+            ]   
             
             for selector in selectors:
                 if selector.exists:
