@@ -12,6 +12,27 @@ def JinRiTouTiaoApp(app_startup_package):
     ss = SmartSwipe(d)
     vc = VisualClicker(d)
     try:
+        if wait_exists(d(text="首页")):
+            d.xpath('//*[@resource-id="com.ss.android.article.lite:id/a1q"]').click()
+        time.sleep(10)
+        
+        print("⏳ 开始识别[恭喜获得]弹窗")
+        vc.target_texts = ["看视频"]
+        if vc.find_and_click():
+            print("✅ 点击--看视频")
+            aw.watch_ad()
+
+        if wait_exists(d(description="翻倍领取")):
+            print("🗨️ 发现-今日签到-弹窗")
+            d.xpath('//*[contains(@content-desc, "翻倍领取")]').click()
+            aw.watch_ad()    
+            d.xpath('//*[contains(@content-desc, "好的")]').click()
+            print("⏳ 开始识别[恭喜获得]弹窗")
+            vc.target_texts = ["看视频"]
+            if vc.find_and_click():
+                print("✅ 点击--看视频")
+                aw.watch_ad()
+
         if wait_exists(d(textContains="恭喜被新人")):
             print("🗨️ 发现-新人红包-弹窗")
             d.xpath("(//com.lynx.tasm.behavior.ui.view.UIView)[5]").click()
@@ -22,11 +43,7 @@ def JinRiTouTiaoApp(app_startup_package):
             click_by_xpath_text(d, "签到最高")
             time.sleep(1)    
             click_by_xpath_text(d, "去赚更多")
-        
-        time.sleep(10)    
-        d.xpath('//*[@resource-id="com.ss.android.article.lite:id/a1q"]').click()
-        time.sleep(10)
-        
+    
         if wait_exists(d(textContains="恭喜获得惊喜奖励")):
             print("🗨️ 发现-惊喜奖励-弹窗")
             click_by_xpath_text(d, "看视频")
@@ -89,4 +106,5 @@ def JinRiTouTiaoApp(app_startup_package):
                     time.sleep(wait_time)
     
     finally:
+        print("关闭今天头条.....")
         d.app_stop(app_startup_package)
