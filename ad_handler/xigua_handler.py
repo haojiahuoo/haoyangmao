@@ -33,15 +33,23 @@ class XiGuaAdWatcher:
                     if "看广告已累计" in elements[0].text:
                         print("🗨️ 发现-累计获奖-弹窗")
                         click_by_xpath_text(d, "评价并关闭")
+                    
                         
                     if "领取成功" in elements[0].text:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
                         time.sleep(random.uniform(1, 3))
-                        click_by_xpath_text(d, "领取奖励")
+                        if click_by_xpath_text(d, ["领取奖励", "评价并关闭"], wait_gone=False):
+                            pass
+                        else:
+                            vc.set_targets(["评价并关闭"])
+                            vc.find_and_click()
 
+                if d.xpath('//*[@text="邀请你参与西瓜体验反馈"]').exists:
+                    self.d.press("back")
+                
                 if d.xpath('//*[@resource-id="app"]').exists:
-                        self.d.press("back")  
+                    self.d.press("back")  
                 
                 if self.d(textContains="领奖提醒").exists:
                     print("✅ 任务完成已返回任务页")
@@ -50,9 +58,8 @@ class XiGuaAdWatcher:
                     print("✅ 任务完成已返回任务页")
                     break            
                  # 检查是否需要返回首页
-                vc.target_texts = ["日常任务", "金币收益"]
+                vc.set_targets(["日常任务", "金币收益"])
                 matched_text = vc.match_text()
-
                 if matched_text in ("日常任务", "金币收益") and time.time() - start_time > 30:
                     print("✅ 全部任务已完成，返回首页")
                     break

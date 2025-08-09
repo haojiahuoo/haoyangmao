@@ -21,7 +21,7 @@ def KuaiShouApp(app_startup_package):
 
             if wait_exists(d(textContains="今日签到可领")):
                 print("🗨️ 发现-签到-弹窗")
-                click_by_xpath_text(d, "立即签到", className="android.widget.Button")
+                click_by_xpath_text(d, "立即签到")
                 time.sleep(1)                                   
                 
                 if click_by_xpath_text(d, "点我领iPhone", timeout=20):
@@ -90,5 +90,10 @@ def KuaiShouApp(app_startup_package):
             else:
                 click_by_xpath_text(d, "看广告得金币")
                 aw.watch_ad()
+    
+    except Exception as e:
+        print(f"❌ 出错退出：{e}")
+        raise  # 如果需要保留异常，可以重新抛出
     finally:
+        print("🔚 关闭快手...")
         d.app_stop(app_startup_package)

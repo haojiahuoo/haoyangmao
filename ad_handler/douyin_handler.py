@@ -4,6 +4,9 @@ from typing import Optional
 from Image_elements.visual_clicker import VisualClicker
 from utils.device import d
 from utils.tools import *
+from utils.popuphandler import PopupHandler
+
+
 class DouYinAdWatcher:
     def __init__(self, d: u2.Device):
     
@@ -15,6 +18,7 @@ class DouYinAdWatcher:
         ]
     def watch_ad(self, timeout: float = 500, check_interval: float = 3.0) -> bool:
         vc = VisualClicker(d)
+        ph = PopupHandler(self.d)
         time.sleep(10)  # 等待界面稳定
         print("[开启刷广告模式.....]")
         start_time = time.time()
@@ -36,7 +40,11 @@ class DouYinAdWatcher:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
                         time.sleep(random.uniform(1, 3))
-                        click_by_xpath_text(d, "领取奖励")
+                        if click_by_xpath_text(d, ["领取奖励", "评价并收下金币"]):
+                            pass
+                        else:
+                            vc.set_targets(["评价并收下金币"])
+                            vc.find_and_click()
 
                     if "说点什么" in elements[0].text:
                         print("🗨️ 发现-直播-弹窗")
@@ -51,7 +59,10 @@ class DouYinAdWatcher:
                             # 再检查是否超时
                             if time.time() - while_start_time >= 35:
                                 print("⏰ 超时35秒未检测到'已领取'")
+                                task_completed = True
                                 break  
+                            if self.d(textContains="添加到主屏幕").exists:
+                               ph.check_and_handle_popup()
                             time.sleep(1)  # 避免频繁检查
                         # 任务完成或超时后的处理
                         if task_completed:
@@ -67,9 +78,8 @@ class DouYinAdWatcher:
                     break
                 
                # 检查是否需要返回首页
-                vc.target_texts = ["日常任务", "金币收益"]
+                vc.set_targets["日常任务", "金币收益"]
                 matched_text = vc.match_text()
-
                 if matched_text in ("日常任务", "金币收益") and time.time() - start_time > 30:
                     print("✅ 全部任务已完成，返回首页")
                     break

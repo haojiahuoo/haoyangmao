@@ -28,7 +28,7 @@ def JinRiTouTiaoApp(app_startup_package):
             aw.watch_ad()    
             d.xpath('//*[contains(@content-desc, "好的")]').click()
             print("⏳ 开始识别[恭喜获得]弹窗")
-            vc.target_texts = ["看视频"]
+            vc.set_targets["看视频"]
             if vc.find_and_click():
                 print("✅ 点击--看视频")
                 aw.watch_ad()
@@ -76,7 +76,7 @@ def JinRiTouTiaoApp(app_startup_package):
             if wait_exists(d(textContains="回到顶部")):
                 while True:
                     ss.smart_swipe(direction="up")
-                    vc = VisualClicker(d, target_texts=["看视频再得"])
+                    vc.set_targets(["看视频再得"])
                     matched_text = vc.match_text()
                     if matched_text == "看视频再得":
                         vc.find_and_click()
@@ -95,7 +95,7 @@ def JinRiTouTiaoApp(app_startup_package):
             else:
                 while True:
                     ss.smart_swipe(direction="up")
-                    vc = VisualClicker(d, target_texts=["看视频再得"])
+                    vc.set_targets(["看视频再得"])
                     matched_text = vc.match_text()
                     if matched_text == "看视频再得":
                         vc.find_and_click()
