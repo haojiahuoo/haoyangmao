@@ -9,9 +9,9 @@ from app_scripts.wukong import WuKongApp
 from app_scripts.jinritoutiao import JinRiTouTiaoApp
 from app_scripts.xigua import XiGuaApp
 # # try:
-# d = u2.connect("9a5dbfaf")
+d = u2.connect("9a5dbfaf")
 # # except:
-d = u2.connect("A3KUVB2428008483")
+# d = u2.connect("A3KUVB2428008483")
 # d = u2.connect("GBJ0222927011733")
 handler = PopupHandler(d)
 
@@ -54,8 +54,9 @@ def Start_working(apps):
 apps = [
 # ("快手极速版", "com.kuaishou.nebula"),
 # ("抖音极速版", "com.ss.android.ugc.aweme.lite"),
-("西瓜视频", "com.ss.android.article.video"),
-("今日头条", "com.ss.android.article.lite"),
+# ("西瓜视频", "com.ss.android.article.video"),
+("悟空浏览器", "com.cat.readall"),
+# ("今日头条", "com.ss.android.article.lite"),
 # ("番茄畅听音乐", "com.xs.fm.lite"),
 ]
 
