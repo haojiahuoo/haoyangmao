@@ -1,14 +1,17 @@
 import time
-import uiautomator2 as u2
-from utils.device import d  # 从 utils 中引入设备连接对象
 from utils.tools import *
+import uiautomator2 as u2
 from ad_handler.fanqieyinyue_handle import FanQieYinYueAdWatcher
+from logger import log
 
-watcher = FanQieYinYueAdWatcher(d)
-
-def FanQeiYinYueApp(app_startup_package):
+def run(d: u2.Device):
     try:
-        
+        log(f"[{d.serial}] 启动 番茄音乐")
+        d.app_start("com.xs.fm.lite")
+        time.sleep(10)
+        watcher = FanQieYinYueAdWatcher(d)
+
+
         d.xpath('//*[@resource-id="com.xs.fm.lite:id/ffv"]').click()
         print("点击暂停")
         click_by_xpath_text(d, "领现金")
@@ -27,12 +30,12 @@ def FanQeiYinYueApp(app_startup_package):
             if wait_exists(d.xpath('//*[@text="抽奖"]')):
                 d(text="抽奖").click()
                 print("🔄 点击抽奖")
-                if wait_exists(d.xpath('//*[contains(@text, "活动繁忙")]'), timeout=5):
+                if click_by_xpath_text(d, "看视频再抽一次"):
+                        watcher.watch_ad()
+                elif wait_exists(d.xpath('//*[contains(@text, "活动繁忙")]'), timeout=5):
                     d.press("back")
                     print("活动繁忙，点击后退...")
                     
-                elif click_by_xpath_text(d, "看视频再抽一次"):
-                    watcher.watch_ad()
         print("耗时: ", time.time() - start)
         
         start = time.time()
@@ -56,5 +59,10 @@ def FanQeiYinYueApp(app_startup_package):
             if click_by_xpath_text(d, "看视频再得"):
                 watcher.watch_ad()
         print("耗时: ", time.time() - start)        
+    
+    except Exception as e:
+        log(f"❌ 出错退出：{e}")
+        raise  # 如果需要保留异常，可以重新抛出      
     finally:
-        d.app_stop(app_startup_package)
+        log(f"[{d.serial}] 番茄音乐 任务完成")
+        d.app_start("com.xs.fm.lite")

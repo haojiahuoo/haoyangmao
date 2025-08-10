@@ -1,17 +1,21 @@
 import time
-import uiautomator2 as u2
-from utils.device import d
 from utils.tools import *
+import uiautomator2 as u2
 from ad_handler.jinritoutiao_handler import JinRiTouTiaoAdWatcher
 from utils.smart_swipe import SmartSwipe
 from Image_elements.visual_clicker import VisualClicker
 import random
+from logger import log
 
-def JinRiTouTiaoApp(app_startup_package):
-    aw = JinRiTouTiaoAdWatcher(d)
-    ss = SmartSwipe(d)
-    vc = VisualClicker(d)
+def run(d: u2.Device):
     try:
+        log(f"[{d.serial}] 启动 今日头条")
+        d.app_start("com.ss.android.article.lite")
+        time.sleep(10)
+        aw = JinRiTouTiaoAdWatcher(d)
+        ss = SmartSwipe(d)
+        vc = VisualClicker(d)
+    
         if wait_exists(d(text="首页")):
             d.xpath('//*[@resource-id="com.ss.android.article.lite:id/a1q"]').click()
         time.sleep(10)
@@ -104,7 +108,9 @@ def JinRiTouTiaoApp(app_startup_package):
                     
                     wait_time = random.uniform(0.5, 1.5) 
                     time.sleep(wait_time)
-    
+    except Exception as e:
+        log(f"❌ 出错退出：{e}")
+        raise  # 如果需要保留异常，可以重新抛出
     finally:
-        print("关闭今天头条.....")
-        d.app_stop(app_startup_package)
+        log(f"[{d.serial}] 今日头条 任务完成")
+        d.app_stop("com.ss.android.article.lite")

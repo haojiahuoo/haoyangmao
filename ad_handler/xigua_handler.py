@@ -2,7 +2,6 @@ import uiautomator2 as u2
 import time, random
 from typing import Optional
 from Image_elements.visual_clicker import VisualClicker
-from utils.device import d
 from utils.tools import *
 
 class XiGuaAdWatcher:
@@ -16,7 +15,7 @@ class XiGuaAdWatcher:
         ]
      
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
-        vc = VisualClicker(d)
+        vc = VisualClicker(self.d)
         time.sleep(10)  # 等待界面稳定
         print("[开启刷广告模式.....]")
         start_time = time.time()
@@ -32,23 +31,23 @@ class XiGuaAdWatcher:
                     
                     if "看广告已累计" in elements[0].text:
                         print("🗨️ 发现-累计获奖-弹窗")
-                        click_by_xpath_text(d, "评价并关闭")
+                        click_by_xpath_text(self.d, "评价并关闭")
                     
                         
                     if "领取成功" in elements[0].text:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
                         time.sleep(random.uniform(1, 3))
-                        if click_by_xpath_text(d, ["领取奖励", "评价并关闭"], wait_gone=False):
+                        if click_by_xpath_text(self.d, ["领取奖励", "评价并关闭"], wait_gone=False):
                             pass
                         else:
                             vc.set_targets(["评价并关闭"])
                             vc.find_and_click()
 
-                if d.xpath('//*[@text="邀请你参与西瓜体验反馈"]').exists:
+                if self.d.xpath('//*[@text="邀请你参与西瓜体验反馈"]').exists:
                     self.d.press("back")
                 
-                if d.xpath('//*[@resource-id="app"]').exists:
+                if self.d.xpath('//*[@resource-id="app"]').exists:
                     self.d.press("back")  
                 
                 if self.d(textContains="领奖提醒").exists:

@@ -1,13 +1,16 @@
-import time
+import time 
 import uiautomator2 as u2
-import time
-from utils.device import d
 from utils.tools import *
 from Image_elements.visual_clicker import VisualClicker
 from ad_handler.xigua_handler import XiGuaAdWatcher
+from logger import log
 
-def XiGuaApp(app_startup_package):
+def run(d: u2.Device):
     try:
+        log(f"[{d.serial}] 启动 西瓜视频")
+        d.app_start("com.ss.android.article.video")
+        time.sleep(10)
+        
         vc = VisualClicker(d)
         aw = XiGuaAdWatcher(d)
         
@@ -104,9 +107,9 @@ def XiGuaApp(app_startup_package):
                     d.press("back")
             
     except Exception as e:
-        print(f"❌ 出错退出：{e}")
+        log(f"❌ 出错退出：{e}")
         raise  # 如果需要保留异常，可以重新抛出
     finally:
-        print("🔚 关闭西瓜...")
-        d.app_stop(app_startup_package)
+        log(f"[{d.serial}] 西瓜视频 任务完成")
+        d.app_stop("com.ss.android.article.video")
 

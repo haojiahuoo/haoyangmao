@@ -1,14 +1,17 @@
 import time
-import uiautomator2 as u2
-import time
-from utils.device import d
 from utils.tools import *
+import uiautomator2 as u2
 from Image_elements.visual_clicker import VisualClicker
 from ad_handler.douyin_handler import DouYinAdWatcher
 from utils.smart_swipe import SmartSwipe
+from logger import log
 
-def DouYinApp(app_startup_package):
+def run(d: u2.Device):
     try:
+        log(f"[{d.serial}] 启动 抖音极速版")
+        d.app_start("com.ss.android.ugc.aweme.lite")
+        time.sleep(10)
+        
         vc = VisualClicker(d)
         aw = DouYinAdWatcher(d)
         ss = SmartSwipe(d)
@@ -41,15 +44,15 @@ def DouYinApp(app_startup_package):
             vc.set_targets(["预约领金币"])
             matched_text = vc.match_text()
             if matched_text  == "预约领金币":
-                click_by_xpath_text(d, "立即预约领金币")
-                print("✅ 开始领取流程")
-                click_by_xpath_text(d, "一键领取", wait_gone=False)
-                click_by_xpath_text(d, "开心收下")
-                click_by_xpath_text(d, "立即预约领取", wait_gone=False)
-                click_by_xpath_text(d, "提醒我来领")
-                if click_by_xpath_text(d, "领取奖励"):
-                    aw.watch_ad()
-                    d.press("back")
+                if click_by_xpath_text(d, "立即预约领金币"):
+                    print("✅ 开始领取流程")
+                    click_by_xpath_text(d, "一键领取", wait_gone=False)
+                    click_by_xpath_text(d, "开心收下")
+                    click_by_xpath_text(d, "立即预约领取", wait_gone=False)
+                    click_by_xpath_text(d, "提醒我来领")
+                    if click_by_xpath_text(d, "领取奖励"):
+                        aw.watch_ad()
+                        d.press("back")
             else:
                 print("⚠️ 未匹配到任何目标文本")
                 
@@ -83,8 +86,8 @@ def DouYinApp(app_startup_package):
                 d.swipe(x, y, x, 600, 0.3)
             
             # 签到预约领金币
+            print('⏳ 开始识别["预约领金币]')
             vc.set_targets(["今日预约", "已预约"])
-            print("⏳ 开始识别", vc.set_targets)
             matched_text = vc.match_text()
             print("🧾 识别结果:", repr(matched_text))  # 调试用：查看实际识别结果
             if matched_text  == "已预约":
@@ -114,20 +117,6 @@ def DouYinApp(app_startup_package):
             else:
                 print("⚠️ 未匹配到任何目标文本")
             
-            # 天天领金币
-            print('⏳ 开始识别["明日签到立即", "今日签到立即"]')
-            vc.set_targets(["明日签到立即", "今日签到立即"])
-            matched_text = vc.match_text()
-            if matched_text == "明日签到立即":
-                print("⏳ 明天才能领取")
-            elif matched_text == "今日签到立即":
-                vc.find_and_click()
-                vc.set_targets(["今日可领"])
-                vc.find_and_click()
-                d.press("back")
-            else:
-                print("⚠️ 未匹配到任何目标文本")
-            
             # 点击领宝箱
             print('⏳ 开始识别[宝箱任务]')
             vc.set_targets(["点击领", "开宝箱"])
@@ -145,14 +134,27 @@ def DouYinApp(app_startup_package):
                 elif matched_text in ["开心收下", "我知道了"]:
                     vc.find_and_click()
                     d.press("back")
-                
             else:
                 print("⚠️ 未匹配到任何目标文本")
-    
+                
+            # 天天领金币
+            print('⏳ 开始识别["明日签到立即", "今日签到立即"]')
+            vc.set_targets(["明日签到立即", "今日签到立即"])
+            matched_text = vc.match_text()
+            if matched_text == "明日签到立即":
+                print("⏳ 明天才能领取")
+            elif matched_text == "今日签到立即":
+                vc.find_and_click()
+                vc.set_targets(["今日可领"])
+                vc.find_and_click()
+                d.press("back")
+            else:
+                print("⚠️ 未匹配到任何目标文本")
+            
     except Exception as e:
-        print(f"❌ 出错退出：{e}")
+        log(f"❌ 出错退出：{e}")
         raise  # 如果需要保留异常，可以重新抛出      
     finally:
-        print("关闭抖音...")
-        d.app_stop(app_startup_package)
+        log(f"[{d.serial}] 抖音极速版 任务完成")
+        d.app_stop("com.ss.android.ugc.aweme.lite")
 

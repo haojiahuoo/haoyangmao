@@ -1,17 +1,19 @@
 import time
 import uiautomator2 as u2
-from utils.device import d  # 从 utils 中引入设备连接对象
 from utils.tools import *
+from logger import log
 from Image_elements.visual_clicker import VisualClicker
 from ad_handler.wukong_handler import WuKongAdWatcher
 
-
-def WuKongApp(app_startup_package):
-    
-    vc = VisualClicker(d)
-    aw = WuKongAdWatcher(d)
-
+def run(d: u2.Device):
     try:
+        log(f"[{d.serial}] 启动 悟空浏览器")
+        d.app_start("com.cat.readall")
+        time.sleep(10)
+
+        vc = VisualClicker(d)
+        aw = WuKongAdWatcher(d)
+
         time.sleep(5)  # 等待界面加载完成
         # 点击去赚钱     
         if wait_exists(d(text="金币")):
@@ -43,9 +45,10 @@ def WuKongApp(app_startup_package):
             if vc.find_and_click():
                 time.sleep(2)
                 aw.watch_ad() 
+                
     except Exception as e:
-        print(f"❌ 出错退出：{e}")
+        log(f"❌ 出错退出：{e}")
         raise  # 如果需要保留异常，可以重新抛出      
     finally:
-        print("关闭悟空浏览器...")
-        d.app_stop(app_startup_package)
+        log(f"[{d.serial}] 悟空浏览器 任务完成")
+        d.app_start("com.cat.readall")

@@ -23,10 +23,14 @@ class VisualClicker:
         self.d.screenshot(path)
         return path
 
-    def find_and_click(self, retries=1, delay=2):
+    def find_and_click(self, target=None, retries=1, delay=2):
         """
-        在 OCR 检测到的按钮中按 self.target_texts 的优先级选择并点击。
-        成功返回 (cx, cy)，失败返回 False（保持原来的外部兼容性）。
+        点击 OCR 检测到的按钮。
+        target:
+            None  → 按 set_targets 优先级选择
+            int   → 按索引选择（0 为第一个）
+            str   → 按文本模糊匹配
+        成功返回 (cx, cy)，失败返回 False。
         """
         for attempt in range(retries):
             print(f" 第{attempt + 1}次识别目标文本并尝试点击...")
@@ -36,46 +40,71 @@ class VisualClicker:
                 button_keywords=self.button_keywords
             )
 
-            # best 保存当前找到的最佳候选： (priority_index, order_index, btn_dict)
-            best = None
-            order = 0
-            for btn in elements.get('buttons', []):
-                text = btn.get('text', '')
-                # 按照 self.target_texts 的顺序判断优先级
-                for prio_idx, target in enumerate(self.target_texts):
-                    if target in text:
-                        # 如果还没候选，或当前 target 优先级更高（索引更小），则替换
-                        if best is None or prio_idx < best[0]:
-                            best = (prio_idx, order, btn)
-                        # 一旦当前 button 匹配到某个 target，就不必再检查后面的 target（避免重复）
-                        break
-                order += 1
+            buttons = elements.get('buttons', [])
+            if not buttons:
+                print("❌ 未检测到任何可点击元素")
+                time.sleep(delay)
+                continue
 
-            if best:
-                btn = best[2]
-                cx = int(btn['center'][0] * self.screen_width)
-                cy = int(btn['center'][1] * self.screen_height)
-                print(f"✅ 按优先级选择并点击匹配文本 '{btn.get('text')}'，点击坐标({cx}, {cy})")
+            chosen_btn = None
+
+            # 1️⃣ 如果是 int 索引
+            if isinstance(target, int):
+                if 0 <= target < len(buttons):
+                    chosen_btn = buttons[target]
+                else:
+                    print(f"⚠️ 索引 {target} 超出范围（共 {len(buttons)} 个按钮）")
+
+            # 2️⃣ 如果是 str 文字匹配
+            elif isinstance(target, str):
+                for btn in buttons:
+                    if target in btn.get('text', ''):
+                        chosen_btn = btn
+                        break
+                if not chosen_btn:
+                    print(f"⚠️ 未找到包含文本 '{target}' 的按钮")
+
+            # 3️⃣ 如果是 None，走 set_targets 优先级逻辑
+            else:
+                best = None
+                order = 0
+                for btn in buttons:
+                    text = btn.get('text', '')
+                    for prio_idx, t in enumerate(self.target_texts):
+                        if t in text:
+                            if best is None or prio_idx < best[0]:
+                                best = (prio_idx, order, btn)
+                            break
+                    order += 1
+                if best:
+                    chosen_btn = best[2]
+
+            # ✅ 执行点击
+            if chosen_btn:
+                cx = int(chosen_btn['center'][0] * self.screen_width)
+                cy = int(chosen_btn['center'][1] * self.screen_height)
+                print(f"✅ 点击 '{chosen_btn.get('text')}'，坐标 ({cx}, {cy})")
+
                 try:
                     self.d.click(cx, cy)
                 except Exception as e:
-                    print(f"⚠️ 调用 d.click 出错: {e}，尝试坐标点击备用方法")
-                    self.d.click(cx, cy)  # 再试一次或你也可以做其他降级处理
+                    print(f"⚠️ d.click 出错: {e}，尝试降级点击")
+                    self.d.click(cx, cy)
 
-                # 保存可视化结果（保持原行为）
+                # 保存标注图
                 try:
                     self.ocr_helper.visualize_results(screen_path, f'screen_click_result_{attempt}.png')
                     print(f"📸 标注图已保存: screen_click_result_{attempt}.png")
                 except Exception as e:
                     print(f"⚠️ 保存标注图失败: {e}")
 
-                # 返回坐标（保持你之前的返回类型：非空值为 True）
                 return (cx, cy)
 
             time.sleep(delay)
 
         print("❌ 未找到目标文本，点击失败")
         return False
+
 
     def exists(self, retries=2, delay=2) -> bool:
         for attempt in range(retries):
@@ -95,7 +124,7 @@ class VisualClicker:
         print("❌ 未检测到目标文本")
         return False
 
-    def match_text(self, retries=2, delay=2) -> str:
+    def match_text(self, retries=2, delay=2, return_full_text=False) -> str:
         for attempt in range(retries):
             screen_path = self.screenshot(f'screen_match_{attempt}.png')
             elements = self.ocr_helper.detect_clickable_elements(
@@ -108,17 +137,22 @@ class VisualClicker:
                 text = btn["text"]
                 for target in self.target_texts:
                     if target in text:
-                        matched_targets.append(target)
+                        matched_targets.append((target, text))
 
             if matched_targets:
-                # 按 target_texts 的顺序来选优先级最高的
-                for target in self.target_texts:
-                    if target in matched_targets:
-                        print(f"✅ 匹配文本: {target}")
-                        return target
+                for target, full_text in matched_targets:
+                    # 按 target_texts 的顺序选优先级最高的
+                    if target in self.target_texts:
+                        if return_full_text:
+                            print(f"✅ 匹配完整文本: {full_text}")
+                            return full_text
+                        else:
+                            print(f"✅ 匹配关键词: {target}")
+                            return target
 
             time.sleep(delay)
         return ""
+
 
     
     def __bool__(self):

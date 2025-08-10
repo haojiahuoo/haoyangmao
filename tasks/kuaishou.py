@@ -1,13 +1,17 @@
 import time
 import uiautomator2 as u2
-from utils.device import d  # 从 utils 中引入设备连接对象
 from utils.tools import *
 from ad_handler.kuaishou_handler import KuaiShouAdWatcher
+from logger import log
 
-aw = KuaiShouAdWatcher(d)
-
-def KuaiShouApp(app_startup_package):
+def run(d: u2.Device):
     try:
+        log(f"[{d.serial}] 启动 快手极速版")
+        d.app_start("com.kuaishou.nebula")
+        time.sleep(10)
+
+        aw = KuaiShouAdWatcher(d)
+        
         click_by_xpath_text(d, "去赚钱", wait_gone=False)
         if click_by_xpath_text(d, "猜你喜欢", timeout=20, wait_gone=False):
             print("⏳ 等待20秒让网页稳定....")
@@ -81,19 +85,20 @@ def KuaiShouApp(app_startup_package):
                         else:   
                             d.press("back")
                             time.sleep(2)
-
-            if click_by_xpath_text(d, "点可领"):
-                aw.watch_ad() 
-
+                            
+            print("⏳ 识别-看广告得金币")
             if wait_exists(d(textContains="冷却中")):
                 pass
             else:
                 click_by_xpath_text(d, "看广告得金币")
                 aw.watch_ad()
-    
+                
+            print("⏳ 识别-宝箱任务")
+            if click_by_xpath_text(d, "点可领"):
+                aw.watch_ad() 
     except Exception as e:
-        print(f"❌ 出错退出：{e}")
+        log(f"❌ 出错退出：{e}")
         raise  # 如果需要保留异常，可以重新抛出
     finally:
-        print("🔚 关闭快手...")
-        d.app_stop(app_startup_package)
+        log(f"[{d.serial}] 快手极速版 任务完成")
+        d.app_stop("com.kuaishou.nebula")
