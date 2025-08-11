@@ -26,6 +26,17 @@ def run(d: u2.Device):
                 time.sleep(2)
                 aw.watch_ad() 
             
+            time.sleep(25)
+            if d(textContains="立即报名").exists:
+                print("识别【立即报名】弹窗...")
+                if click_by_xpath_text(d, "立即报名"):
+                    click_by_xpath_text(d, "立即报名")
+                    if click_by_xpath_text(d, "看视频得"):
+                        aw.watch_ad()
+            time.sleep(2)
+            if d(textContains="授权后体验完整功能").exists:
+                click_by_xpath_text(d, xpaths='//*[@content-desc="搜索按钮"]')
+                
         if wait_exists(d(text="去提现")):
             print("⏳ 等待10秒让网页稳定....")
             time.sleep(10)

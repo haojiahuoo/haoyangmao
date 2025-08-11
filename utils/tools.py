@@ -118,3 +118,49 @@ def wait_exists(selector, timeout=3, interval=0.2) -> bool:
         time.sleep(interval)
         elapsed += interval
     return False
+
+def long_press_until_gone(d: u2.Device, press_xpath: str, wait_xpath: str, timeout: int = 10, release_delay: float = 0.3):
+    """
+    长按 press_xpath 元素，直到 wait_xpath 元素消失 或 超时
+
+    :param d: uiautomator2.Device 实例
+    :param press_xpath: 要长按的元素 XPath
+    :param wait_xpath: 等待消失的元素 XPath
+    :param timeout: 等待的超时时间（秒）
+    :param release_delay: 松开前的延迟时间（秒）
+    
+    long_press_until_gone(
+    d,
+    press_xpath='//*[@text="长按加速视频"]/../..//android.widget.ImageView',
+    wait_xpath='//*[@text="长按加速视频"]',
+    timeout=10,
+    release_delay=0.5
+)
+
+    
+    """
+    press_node = d.xpath(press_xpath)
+    if not press_node.exists:
+        print(f"❌ 找不到长按目标: {press_xpath}")
+        return False
+
+    bounds = press_node.get().info['bounds']
+    cx = (bounds['left'] + bounds['right']) // 2
+    cy = (bounds['top'] + bounds['bottom']) // 2
+
+    d.touch.down(cx, cy)
+    print(f"👆 开始长按 {press_xpath} ...")
+
+    gone = d.xpath(wait_xpath).wait_gone(timeout=timeout)
+    if gone:
+        print(f"✅ 目标 {wait_xpath} 已消失")
+    else:
+        print(f"⏳ 等待超时 {timeout} 秒，强制松开")
+
+    # 松开前延迟
+    if release_delay > 0:
+        time.sleep(release_delay)
+
+    d.touch.up(cx, cy)
+    return gone
+

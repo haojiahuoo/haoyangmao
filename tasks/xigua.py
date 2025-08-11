@@ -54,8 +54,8 @@ def run(d: u2.Device):
                     click_by_xpath_text(d, "开心收下")
                     click_by_xpath_text(d, "立即预约领取", wait_gone=False)
                     click_by_xpath_text(d, "提醒我来领")
-                    click_by_xpath_text(d, "领取奖励")
-                    aw.watch_ad()
+                    if click_by_xpath_text(d, "领取奖励"):
+                        aw.watch_ad()
                     d.press("back")
             else:
                 print("⚠️ 未匹配到任何目标文本")

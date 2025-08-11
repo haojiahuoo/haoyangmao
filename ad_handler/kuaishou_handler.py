@@ -120,7 +120,7 @@ class KuaiShouAdWatcher:
                         print("✅ 点击--再看一个")
                         time.sleep(3)
                         continue  # 继续监控广告
-                    
+                     
                 if self.d(textContains="猜你喜欢").exists and time.time() - start_time > 30:
                     print("✅ 全部任务已完成，返回首页")
                     return

@@ -76,8 +76,8 @@ class DouYinAdWatcher:
                     print("✅ 任务完成已返回任务页")
                     break
                 
-               # 检查是否需要返回首页
-                vc.set_targets["日常任务", "金币收益"]
+                # 检查是否需要返回首页
+                vc.set_targets(["日常任务", "金币收益"])
                 matched_text = vc.match_text()
                 if matched_text in ("日常任务", "金币收益") and time.time() - start_time > 30:
                     print("✅ 全部任务已完成，返回首页")

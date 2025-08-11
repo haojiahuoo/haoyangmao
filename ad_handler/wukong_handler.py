@@ -74,6 +74,10 @@ class WuKongAdWatcher:
                 if self.d(textContains="去提现").exists and time.time() - start_time > 30:
                     print("✅ 任务完成已返回任务页")
                     break
+                elif self.d.xpath('//*[contains(@text, "明天再来")]').exists:
+                    print("✅ 打卡任务已完成")
+                    self.d.press("back")  # 返回
+                    break
                 else:
                     time.sleep(check_interval)
                     

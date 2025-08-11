@@ -45,6 +45,11 @@ def run(d: u2.Device):
                         print("🗨️ 发现-去明日签-弹窗")
                         click_by_xpath_text(d, xpaths = '//*[@text="明日签到可领"]/../../../following-sibling::*[contains(@class, "android.widget.Image")]')
                         
+                if d.xpath("//*[contains(@text, '看视频最高')]").exists:
+                    print("🗨️ 发现-看视频最高-弹窗")
+                    click_by_xpath_text(d, xpaths="//*[contains(@text, '看视频最高')]/../../preceding-sibling::*[1]//android.widget.Image")
+                    time.sleep(1)
+                       
                     
             if wait_exists(d(textContains="新用户必得")):
                 print("🗨️ 发现-新用户必得-弹窗")

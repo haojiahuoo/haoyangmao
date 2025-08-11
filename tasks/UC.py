@@ -1,4 +1,4 @@
-import time
+import time, random
 import uiautomator2 as u2
 from utils.tools import *
 from logger import bind_logger
@@ -32,12 +32,18 @@ def run(device_input):
         if click_by_xpath_text(d, xpaths="//*[@text='首页']/../../*[5]//android.widget.ImageView", wait_gone=False):
             time.sleep(5)
             log_debug("识别恭喜获得元宝")
-            vc.set_targets(["看视频再", "看激励视频"])
+            vc.set_targets(["看视频再", "看激励视频", "周年福利","施肥可得"])
             matched_text = vc.match_text()
             if matched_text in ["看视频再", "看激励视频"]:
                 vc.find_and_click()
                 aw.watch_ad()
-            
+            elif matched_text == "周年福利":
+                log_debug("识别周年福利")
+                d.press("back")  # 返回上一页
+            elif matched_text == ["施肥可得"]:
+                time.sleep(random.uniform(1, 3))  # 等待1-3秒
+                d.click(925, 783)  # 点击屏幕中心
+
             log_debug("识别是否进入任务页面...")
             vc.set_targets(["现金余额"])
             matched_text = vc.match_text()
@@ -59,7 +65,7 @@ def run(device_input):
             
             vc.set_targets(["领元宝"])
             start_time = time.time()
-            while time.time() - start_time < 500:  # 最多等待60秒
+            while time.time() - start_time < 1200:  # 最多等待60秒
                 matched_text = vc.match_text(return_full_text=True)
                 if matched_text and "领元宝" in matched_text:
                     if BracketNumberTool.compare(matched_text, "lt"):

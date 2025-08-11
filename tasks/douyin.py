@@ -31,10 +31,12 @@ def run(d: u2.Device):
             if vc.find_and_click():
                 print("✅ 点击--签到领")
                 time.sleep(2)
-                vc.set_targets(["看广告", "开心收下", "好的"])
+                vc.set_targets(["看广告", "开心收下", "好的", "最高得"])
                 matched_text = vc.match_text()
                 if matched_text in ["开心收下", "好的"]:
                     vc.find_and_click()
+                elif matched_text == "最高得":
+                    d.press("back")
                 elif matched_text == "看广告":
                     vc.find_and_click()
                     print("✅ 点击--看广告")
@@ -86,22 +88,24 @@ def run(d: u2.Device):
                 d.swipe(x, y, x, 600, 0.3)
             
             # 签到预约领金币
-            print('⏳ 开始识别["预约领金币]')
-            vc.set_targets(["今日预约", "已预约"])
+            print("⏳ 开始识别[预约领金币]")
+            vc.set_targets(["今日预约", "24点前", "明日0点", "明日11点"])
             matched_text = vc.match_text()
-            print("🧾 识别结果:", repr(matched_text))  # 调试用：查看实际识别结果
-            if matched_text  == "已预约":
-                print("✅ 明天才能领取")
-            elif matched_text  == "今日预约":
+            if matched_text in ["明日0点", "明日11点"]:
+                print("✅ 明天再来！")
+            elif matched_text in ["今日预约", "24点前"]:
                 print("✅ 开始领取流程")
                 vc.find_and_click()
-                click_by_xpath_text(d, "立即预约领取", wait_gone=False)
-                click_by_xpath_text(d, "提醒我来领")
-                if click_by_xpath_text(d, "领取奖励"):
-                    aw.watch_ad()
+                if click_by_xpath_text(d, "一键领取", wait_gone=False):
+                    click_by_xpath_text(d, "开心收下")
+                    click_by_xpath_text(d, "立即预约领取", wait_gone=False)
+                    click_by_xpath_text(d, "提醒我来领")
+                    if click_by_xpath_text(d, "领取奖励"):
+                        aw.watch_ad()
                     d.press("back")
             else:
                 print("⚠️ 未匹配到任何目标文本")
+          
 
             # 打卡领五粮液
             print('⏳ 开始识别["今日已打卡", "今日待打卡"]')
@@ -157,4 +161,6 @@ def run(d: u2.Device):
     finally:
         log(f"[{d.serial}] 抖音极速版 任务完成")
         d.app_stop("com.ss.android.ugc.aweme.lite")
+
+
 

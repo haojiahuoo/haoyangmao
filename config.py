@@ -25,11 +25,11 @@ def get_connected_devices():
 # 模式1. 手动指定设备（取消下面DEVICES的注释）
 # 模式2. 自动检测设备（保持DEVICES = None）
 
-DEVICES = None  # 设为None表示自动检测
-# DEVICES = [  # 手动指定设备
-#     "9a5dbfaf",
-#     "emulator-5554",
-# ]
+# DEVICES = None  # 设为None表示自动检测
+DEVICES = [  # 手动指定设备
+    "9a5dbfaf",
+    # "A3KUVB2428008483",
+]
 
 ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 
