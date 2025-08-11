@@ -1,7 +1,7 @@
 import time, cv2, re
 import numpy as np
 from cnocr import CnOcr
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 
 class SmartController:
     def __init__(self):
@@ -12,14 +12,17 @@ class SmartController:
             box_score_thresh=0.3
         )
         
-    def _analyze_elements(self, ocr_results: List[Dict], img_shape: Tuple[int]) -> Dict:
+    def _analyze_elements(self, ocr_results: List[Dict], img_shape: Tuple[int], button_keywords: Optional[List[str]] = None) -> Dict:
         """分析OCR结果，识别按钮和关键文本"""
         h, w = img_shape[:2]
         buttons = []
         key_texts = []
         
         # 按钮特征：包含动作词且通常位于底部或右侧
-        button_keywords = ['看广告','看视频',"点击", "已连续签到", "签到领", "24点前", "明日0点", "今日签到立即", "新人签到领金币", "明天再来", "金币收益", "看视频再得", "开宝箱", "立即签到+", "今日待打卡", "看广告视频", "今日已打卡", "评价并关闭"]
+        # default_keywords = ['看广告','看视频',"点击", "已连续签到", "签到领",  "今日签到立即", "新人签到领金币", "明天再来", "金币收益", "看视频再得", "开宝箱", "立即签到+", "今日待打卡", "看广告视频", "今日已打卡", "评价并关闭", "日常任务", "今日可领", "好的", "我知道了"]
+        default_keywords = ["看视频"]
+        # 如果传了自定义关键词，使用它；否则用默认值
+        button_keywords = button_keywords or default_keywords
         for res in ocr_results:
             text = res['text'].strip()
             if not text:
@@ -91,7 +94,7 @@ class SmartController:
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-    def detect_clickable_elements(self, screenshot_path: str) -> Dict[str, List[Dict]]:
+    def detect_clickable_elements(self, screenshot_path: str, button_keywords: Optional[List[str]] = None) -> Dict[str, List[Dict]]:
         """检测图片中所有可点击元素及其位置
         
         Returns:
@@ -108,6 +111,6 @@ class SmartController:
         ocr_results = self.ocr.ocr(img)
         
         # 分析布局
-        elements = self._analyze_elements(ocr_results, img.shape)
+        elements = self._analyze_elements(ocr_results, img.shape, button_keywords=button_keywords)
         
         return elements

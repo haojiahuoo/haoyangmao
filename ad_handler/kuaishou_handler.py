@@ -2,6 +2,8 @@ import uiautomator2 as u2
 import time,random
 from typing import Optional
 from utils.tools import *
+from utils.popuphandler import PopupHandler
+
 class KuaiShouAdWatcher:
     def __init__(self, d: u2.Device):
     
@@ -22,6 +24,7 @@ class KuaiShouAdWatcher:
         ]
 
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
+        ph = PopupHandler(self.d)
         time.sleep(10)  # 等待界面稳定
         print("[开启刷广告模式.....]")
         start_time = time.time()
@@ -49,7 +52,11 @@ class KuaiShouAdWatcher:
                             # 再检查是否超时
                             if time.time() - while_start_time >= 35:
                                 print("⏰ 超时35秒未检测到'已领取'")
+                                task_completed = True
                                 break  
+                            if self.d(textContains="添加到主屏幕").exists:
+                               ph.check_and_handle_popup()
+                               
                             time.sleep(1)  # 避免频繁检查
                         # 任务完成或超时后的处理
                         if task_completed:

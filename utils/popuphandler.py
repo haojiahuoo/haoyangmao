@@ -7,7 +7,6 @@ class PopupHandler:
         self.common_popups = [
             {"name": "添加到主屏幕", "text": "取消"},
             {"name": "送你一份新人福利", "text": "com.ss.android.article.lite.openliveplugin:id/saas_coupon_id_cancel"},
-            
         ]
     
     def check_and_handle_popup(self, timeout=3.0):
