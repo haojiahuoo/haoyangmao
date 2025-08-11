@@ -38,7 +38,7 @@ class XiGuaAdWatcher:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
                         time.sleep(random.uniform(1, 3))
-                        if click_by_xpath_text(self.d, ["领取奖励", "评价并关闭"], wait_gone=False):
+                        if click_by_xpath_text(self.d, ["领取奖励", "评价并关闭"]):
                             pass
                         else:
                             vc.set_targets(["评价并关闭"])

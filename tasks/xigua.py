@@ -50,9 +50,9 @@ def run(d: u2.Device):
             if matched_text  == "预约领金币":
                 if click_by_xpath_text(d, "立即领取"):
                     print("✅ 开始领取流程")
-                    click_by_xpath_text(d, "一键领取", wait_gone=False)
+                    click_by_xpath_text(d, "一键领取")
                     click_by_xpath_text(d, "开心收下")
-                    click_by_xpath_text(d, "立即预约领取", wait_gone=False)
+                    click_by_xpath_text(d, "立即预约领取")
                     click_by_xpath_text(d, "提醒我来领")
                     if click_by_xpath_text(d, "领取奖励"):
                         aw.watch_ad()
@@ -78,9 +78,9 @@ def run(d: u2.Device):
             elif matched_text in ["今日预约", "24点前"]:
                 print("✅ 开始领取流程")
                 vc.find_and_click()
-                click_by_xpath_text(d, ["立即预约领取", "一键领取"], wait_gone=False)
+                click_by_xpath_text(d, ["立即预约领取", "一键领取"])
                 click_by_xpath_text(d, "开心收下")
-                click_by_xpath_text(d, "立即预约领取", wait_gone=False)
+                click_by_xpath_text(d, "立即预约领取")
                 click_by_xpath_text(d, "提醒我来领")
                 click_by_xpath_text(d, "领取奖励")
                 aw.watch_ad()

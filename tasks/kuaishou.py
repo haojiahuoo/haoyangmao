@@ -12,8 +12,8 @@ def run(d: u2.Device):
 
         aw = KuaiShouAdWatcher(d)
         
-        click_by_xpath_text(d, "去赚钱", wait_gone=False)
-        if click_by_xpath_text(d, "猜你喜欢", timeout=20, wait_gone=False):
+        click_by_xpath_text(d, "去赚钱")
+        if click_by_xpath_text(d, "猜你喜欢"):
             print("⏳ 等待20秒让网页稳定....")
             time.sleep(20)
             print("✅ 加载完成，开始工作")
@@ -28,17 +28,17 @@ def run(d: u2.Device):
                 click_by_xpath_text(d, "立即签到")
                 time.sleep(1)                                   
                 
-                if click_by_xpath_text(d, "点我领iPhone", timeout=20):
+                if click_by_xpath_text(d, "点我领iPhone"):
                     time.sleep(1)
                     if wait_exists(d.xpath('//*[contains(@text, "去签到")]')):
-                        click_by_xpath_text(d, "去签到", timeout=20)
-                        click_by_xpath_text(d, "我知道了", timeout=20)
+                        click_by_xpath_text(d, "去签到")
+                        click_by_xpath_text(d, "我知道了")
                         time.sleep(1)
                         d.press("back")
                     
                 if wait_exists(d.xpath('//*[contains(@text, "去看视频")]')):
                     print("🗨️ 发现-去看视频-弹窗")
-                    click_by_xpath_text(d, "去看视频", timeout=20)
+                    click_by_xpath_text(d, "去看视频")
                     time.sleep(1)
                     aw.watch_ad()
                     if wait_exists(d.xpath('//*[contains(@text, "明日签到可领")]')):

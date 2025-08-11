@@ -132,17 +132,13 @@ class VisualClicker:
                 button_keywords=self.button_keywords
             )
 
-            matched_targets = []
-            for btn in elements.get("buttons", []):
-                text = btn["text"]
-                for target in self.target_texts:
-                    if target in text:
-                        matched_targets.append((target, text))
+            # 提取所有按钮文本，方便按优先级匹配
+            buttons_text_map = [(btn["text"], btn) for btn in elements.get("buttons", [])]
 
-            if matched_targets:
-                for target, full_text in matched_targets:
-                    # 按 target_texts 的顺序选优先级最高的
-                    if target in self.target_texts:
+            # 按 target_texts 顺序优先匹配
+            for target in self.target_texts:
+                for full_text, _ in buttons_text_map:
+                    if target in full_text:
                         if return_full_text:
                             print(f"✅ 匹配完整文本: {full_text}")
                             return full_text
@@ -152,6 +148,7 @@ class VisualClicker:
 
             time.sleep(delay)
         return ""
+
 
 
     

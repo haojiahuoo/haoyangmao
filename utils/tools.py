@@ -6,7 +6,7 @@ def click_by_xpath_text(
     d: u2.Device,
     texts: Union[str, list[str], None] = None,  # 要匹配的文本，可为 None
     timeout: float = 10.0,
-    wait_gone: bool = True,
+    wait_gone: bool = False,
     raise_error: bool = False,
     log_prefix: str = "",
     xpaths: Union[str, list[str], None] = None,  # 直接传 XPath
@@ -68,6 +68,9 @@ def click_by_xpath_text(
                     if wait_gone:
                         if selector.wait_gone(timeout=timeout):
                             return True
+                        else:
+                            print("[失败] 点击成功后元素没有消失")
+                            return False
                     else:
                         return True
 
@@ -81,6 +84,9 @@ def click_by_xpath_text(
                 if wait_gone:
                     if selector.wait_gone(timeout=timeout):
                         return True
+                    else:
+                        print("[失败] 点击成功后元素没有消失")
+                        return False
                 else:
                     return True
 

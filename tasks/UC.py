@@ -29,7 +29,7 @@ def run(device_input):
     time.sleep(10)
     try:
         # 进入任务页面
-        if click_by_xpath_text(d, xpaths="//*[@text='首页']/../../*[5]//android.widget.ImageView", wait_gone=False):
+        if click_by_xpath_text(d, xpaths="//*[@text='首页']/../../*[5]//android.widget.ImageView"):
             time.sleep(5)
             log_debug("识别恭喜获得元宝")
             vc.set_targets(["看视频再", "看激励视频", "周年福利","施肥可得"])
