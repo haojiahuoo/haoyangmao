@@ -31,15 +31,19 @@ def run(device_input):
         # 进入任务页面
         if click_by_xpath_text(d, xpaths="//*[@text='首页']/../../*[5]//android.widget.ImageView"):
             time.sleep(5)
-            log_debug("识别恭喜获得元宝")
-            vc.set_targets(["看视频再", "看激励视频", "周年福利","施肥可得"])
+            log_debug("开始识别各种弹窗...")
+            vc.set_targets(["周年福利"])
             matched_text = vc.match_text()
-            if matched_text in ["看视频再", "看激励视频"]:
-                vc.find_and_click()
-                aw.watch_ad()
-            elif matched_text == "周年福利":
+            if matched_text == "周年福利":
                 log_debug("识别周年福利")
                 d.press("back")  # 返回上一页
+
+            vc.set_targets(["看激励视频"])
+            matched_text = vc.match_text()
+            if matched_text == "看激励视频":
+                vc.find_and_click()
+                aw.watch_ad()
+
             elif matched_text == ["施肥可得"]:
                 time.sleep(random.uniform(1, 3))  # 等待1-3秒
                 d.click(925, 783)  # 点击屏幕中心
@@ -64,6 +68,8 @@ def run(device_input):
                         aw.watch_ad()  
             
             vc.set_targets(["领元宝"])
+            # matched_text = vc.match_text()
+            # if matched_text == "领元宝":
             start_time = time.time()
             while time.time() - start_time < 1200:  # 最多等待60秒
                 matched_text = vc.match_text(return_full_text=True)

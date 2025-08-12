@@ -53,6 +53,8 @@ class WuKongAdWatcher:
                         if self.d.xpath('//*[@text="跳过"]').exists:
                             click_by_xpath_text(self.d, "跳过")
                             time.sleep(2)
+                        elif self.d.xpath('//*[@text="领取成功"]').exists:
+                            click_by_xpath_text(self.d, xpaths='//*[contains(@text, "领取成功")]/../following-sibling::*[2]')
                         else:    
                             self.d.press("back")
                     
@@ -65,9 +67,16 @@ class WuKongAdWatcher:
                             self.d.press("back")  # 返回
                             time.sleep(2)
                             click_by_xpath_text(self.d, "看视频再")
-                        if self.d.xpath('//*[@resource-id="app"]').exists:
-                                self.d.press("back")
-                    
+                
+                if self.d.xpath('//*[@resource-id="app"]').exists:
+                    self.d.press("back")
+                
+                vc.set_targets(["看视频+"])
+                vc.find_and_click()
+            
+                vc.set_targets(["看视频再领"])
+                vc.find_and_click()
+                
                 if self.d.xpath('//*[@resource-id="app"]').exists:
                         self.d.press("back")
                             

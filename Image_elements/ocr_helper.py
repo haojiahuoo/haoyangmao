@@ -19,7 +19,7 @@ class SmartController:
         key_texts = []
         
         # 按钮特征：包含动作词且通常位于底部或右侧
-        # default_keywords = ['看广告','看视频',"点击", "已连续签到", "签到领",  "今日签到立即", "新人签到领金币", "明天再来", "金币收益", "看视频再得", "开宝箱", "立即签到+", "今日待打卡", "看广告视频", "今日已打卡", "评价并关闭", "日常任务", "今日可领", "好的", "我知道了"]
+        
         default_keywords = ["看视频"]
         # 如果传了自定义关键词，使用它；否则用默认值
         button_keywords = button_keywords or default_keywords

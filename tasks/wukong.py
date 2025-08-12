@@ -19,23 +19,33 @@ def run(d: u2.Device):
         if wait_exists(d(text="金币")):
             click_by_xpath_text(d, "金币")
 
-            time.sleep(5)
-            print("识别【惊喜奖励】弹窗...")
-            vc.set_targets(["看视频再领"])
-            if vc.find_and_click():
-                time.sleep(2)
-                aw.watch_ad() 
-            
             time.sleep(25)
-            if d(textContains="立即报名").exists:
-                print("识别【立即报名】弹窗...")
+            if d(textContains="授权后体验完整功能").exists:
+                click_by_xpath_text(d, xpaths='//*[@content-desc="关闭"]')
+            
+            time.sleep(5)
+            if d(textContains="立即报名").exists or d(textContains="继续打卡").exists:
+                print("识别【连续打开】弹窗...")
                 if click_by_xpath_text(d, "立即报名"):
                     click_by_xpath_text(d, "立即报名")
                     if click_by_xpath_text(d, "看视频得"):
                         aw.watch_ad()
-            time.sleep(2)
-            if d(textContains="授权后体验完整功能").exists:
-                click_by_xpath_text(d, xpaths='//*[@content-desc="搜索按钮"]')
+
+                elif click_by_xpath_text(d, "立即打卡"):
+                    if click_by_xpath_text(d, "看视频得"):
+                        aw.watch_ad()
+
+            print("识别【连续签到】弹窗...")
+            vc.set_targets(["额外再领"])
+            if vc.find_and_click():
+                time.sleep(2)
+                aw.watch_ad() 
+
+            
+            
+           
+            
+            
                 
         if wait_exists(d(text="去提现")):
             print("⏳ 等待10秒让网页稳定....")
