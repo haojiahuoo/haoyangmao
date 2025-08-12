@@ -19,7 +19,6 @@ def run(device_input):
     # 绑定日志器（确保传递字符串ID）
     log, log_error, log_debug = bind_logger(device_id)
     
-    
     # 确保VisualClicker和UCAdWatcher接收设备对象
     vc = VisualClicker(d)
     aw = UCAdWatcher(d)
@@ -28,23 +27,23 @@ def run(device_input):
     d.app_start("com.ucmobile.lite")
     time.sleep(10)
     try:
+        time.sleep(5)
+        log_debug("开始识别各种弹窗...")
+        vc.set_targets(["周年福利"])
+        matched_text = vc.match_text()
+        if matched_text == "周年福利":
+            log_debug("识别周年福利")
+            d.press("back")  # 返回上一页
+            
         # 进入任务页面
         if click_by_xpath_text(d, xpaths="//*[@text='首页']/../../*[5]//android.widget.ImageView"):
-            time.sleep(5)
-            log_debug("开始识别各种弹窗...")
-            vc.set_targets(["周年福利"])
-            matched_text = vc.match_text()
-            if matched_text == "周年福利":
-                log_debug("识别周年福利")
-                d.press("back")  # 返回上一页
-
-            vc.set_targets(["看激励视频"])
+            
+            vc.set_targets(["看激励视频", "施肥可得"])
             matched_text = vc.match_text()
             if matched_text == "看激励视频":
                 vc.find_and_click()
                 aw.watch_ad()
-
-            elif matched_text == ["施肥可得"]:
+            elif matched_text == "施肥可得":
                 time.sleep(random.uniform(1, 3))  # 等待1-3秒
                 d.click(925, 783)  # 点击屏幕中心
 

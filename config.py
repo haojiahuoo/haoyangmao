@@ -35,11 +35,11 @@ ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 
 TASKS = [
     "UC",
-    # "douyin",
-    # "xigua",
-    # "wukong",
-    # "kuaishou",
-    # "jinritoutiao"
+    "douyin",
+    "xigua",
+    "wukong",
+    "kuaishou",
+    "jinritoutiao"
 ]
 
 MAX_RETRY = 3

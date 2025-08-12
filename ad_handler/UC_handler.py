@@ -48,21 +48,28 @@ class UCAdWatcher:
                     for i, element in enumerate(elements, 1):
                         self.log_debug(f"匹配元素1 {i}/{len(elements)}: {element.text}")
 
-                    if element and any(t in elements[0].text for t in ["奖励已发放", "摇动手机", "奖励将于"]):
-                        if elements[0].text == "奖励已发放":
-                            self.log("✅ 发现奖励已发放")
-                            click_by_xpath_text(self.d, "奖励已发放")
-                        elif elements[0].text == "摇动手机":
-                            self.log("✅ 发现摇动手机弹框")
-                            if self.d(textContains="反馈").exists:
-                                self.log("🗨️ 发现反馈弹窗")
-                                click_by_xpath_text(self.d, xpaths="//*[contains(@text, '反馈')]/following-sibling::*[1]")  
-                        elif elements[0].text == "奖励将于":
-                            self.log("✅ 发现奖励将于弹框")
-                            if click_by_xpath_text(self.d, "奖励将于", wait_gone=True, timeout=45):
-                                self.log("✅ 奖励将于弹框已消失")
+                    for element in elements:
+                        text = element.text
+                        if any(t in text for t in ["奖励已发放", "摇动手机", "奖励将于"]):
+                            if "奖励已发放" in text:
+                                self.log("✅ 发现奖励已发放")
                                 time.sleep(random.uniform(2, 3))
-                                click_by_xpath_text(self.d, xpaths="//*[contains(@text, '立即打开')]/../../preceding-sibling::*[1]") 
+                                click_by_xpath_text(self.d, "奖励已发放")
+                                break  # 找到就退出
+                            elif "摇动手机" in text:
+                                self.log("✅ 发现摇动手机弹框")
+                                if self.d(textContains="反馈").exists:
+                                    self.log("🗨️ 发现反馈弹窗")
+                                    time.sleep(random.uniform(2, 3))
+                                    click_by_xpath_text(self.d, xpaths="//*[contains(@text, '反馈')]/following-sibling::*[1]")
+                                break
+                            elif "奖励将于" in text:
+                                self.log("✅ 发现奖励将于弹框")
+                                if click_by_xpath_text(self.d, "奖励将于", wait_gone=True, timeout=45):
+                                    self.log("✅ 奖励将于弹框已消失")
+                                    time.sleep(random.uniform(2, 3))
+                                    click_by_xpath_text(self.d, xpaths="//*[contains(@text, '立即打开')]/../../preceding-sibling::*[1]")
+                                break
                             
                     if "奖励已领取" in elements[0].text:
                         self.log("✅ 广告观看完成")
@@ -89,14 +96,18 @@ class UCAdWatcher:
                             time.sleep(random.uniform(1, 3))
                             if click_by_xpath_text(self.d, "去下载拿奖励"):
                                 time.sleep(random.uniform(1, 3))
-                                if self.d.xpath('//*[@text="恭喜获得奖励"]').exists:
+                                if self.d(textContains="立即下载").exists:
+                                    time.sleep(random.uniform(1, 3))
+                                    if click_by_xpath_text(self.d, "立即下载"):
+                                        time.sleep(random.uniform(1, 3))
+                                        click_by_xpath_text(self.d, xpaths="//*[contains(@text, '恭喜获得奖励')]/../../preceding-sibling::*[1]/*[1]/*[2]//android.widget.ImageView")
+                                elif self.d.xpath('//*[@text="恭喜获得奖励"]').exists:
                                     pass
                                 elif self.d.xpath('//*[contains(@text, "安装")]').exists:
                                     time.sleep(random.uniform(1, 3))
                                     self.d.app_start("com.ucmobile.lite")
-                            if click_by_xpath_text(self.d, xpaths="//*[contains(@text, '恭喜获得奖励')]/../../preceding-sibling::*[1]/*[1]/*[2]//android.widget.ImageView"):
-                                time.sleep(random.uniform(1, 3))
-                            
+                                    click_by_xpath_text(self.d, xpaths="//*[contains(@text, '恭喜获得奖励')]/../../preceding-sibling::*[1]/*[1]/*[2]//android.widget.ImageView")
+                                        
                     if "完成App安装" in elements[0].text:
                         if click_by_xpath_text(self.d, xpaths="//*[contains(@text, '完成App安装')]/../../preceding-sibling::*[1]/*[1]/*[1]//android.widget.ImageView"):
                             time.sleep(random.uniform(1, 3))
@@ -110,6 +121,8 @@ class UCAdWatcher:
                 
                 if self.d(textContains="反馈").exists:
                     if self.d(textContains="反馈").exists and self.d(textContains="秒可立即").exists:
+                        pass
+                    elif self.d(textContains="反馈").exists and self.d(textContains="去看看").exists:
                         pass
                     else:
                         self.log("🗨️ 发现反馈弹窗，点击取消")
