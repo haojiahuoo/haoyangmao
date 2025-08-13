@@ -14,7 +14,7 @@ class JinRiTouTiaoAdWatcher:
             "逛街最多再领"
         ]
 
-    def watch_ad(self, timeout: float = 500, check_interval: float = 3.0) -> bool:
+    def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
         time.sleep(10)  # 等待界面稳定
         start_time = time.time()
         while time.time() - start_time < timeout:

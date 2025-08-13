@@ -40,13 +40,7 @@ def run(d: u2.Device):
             if vc.find_and_click():
                 time.sleep(2)
                 aw.watch_ad() 
-
-            
-            
-           
-            
-            
-                
+  
         if wait_exists(d(text="去提现")):
             print("⏳ 等待10秒让网页稳定....")
             time.sleep(10)

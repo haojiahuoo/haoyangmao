@@ -15,7 +15,7 @@ class DouYinAdWatcher:
             "说点什么",
             "恭喜累计获得奖励",
         ]
-    def watch_ad(self, timeout: float = 500, check_interval: float = 3.0) -> bool:
+    def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
         vc = VisualClicker(self.d)
         ph = PopupHandler(self.d)
         time.sleep(10)  # 等待界面稳定

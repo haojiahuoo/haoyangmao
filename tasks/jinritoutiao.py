@@ -8,17 +8,16 @@ import random
 from logger import log
 
 def run(d: u2.Device):
-    try:
-<<<<<<< HEAD:app_scripts/jinritoutiao.py
-=======
-        log(f"[{d.serial}] 启动 今日头条")
-        d.app_start("com.ss.android.article.lite")
-        time.sleep(10)
-        aw = JinRiTouTiaoAdWatcher(d)
-        ss = SmartSwipe(d)
-        vc = VisualClicker(d)
     
->>>>>>> 0d02bcbdfe068b997095f0cb1ce382457d2e7bd0:tasks/jinritoutiao.py
+    log(f"[{d.serial}] 启动 番茄音乐")
+    d.app_start("com.ss.android.article.lite")
+    time.sleep(10)
+        
+    vc = VisualClicker(d)
+    aw = JinRiTouTiaoAdWatcher(d)
+    ss = SmartSwipe(d)
+    
+    try:
         if wait_exists(d(text="首页")):
             d.xpath('//*[@resource-id="com.ss.android.article.lite:id/a1q"]').click()
         time.sleep(10)
@@ -35,11 +34,7 @@ def run(d: u2.Device):
             aw.watch_ad()    
             d.xpath('//*[contains(@content-desc, "好的")]').click()
             print("⏳ 开始识别[恭喜获得]弹窗")
-<<<<<<< HEAD:app_scripts/jinritoutiao.py
             vc.target_texts = ["看视频"]
-=======
-            vc.set_targets["看视频"]
->>>>>>> 0d02bcbdfe068b997095f0cb1ce382457d2e7bd0:tasks/jinritoutiao.py
             if vc.find_and_click():
                 print("✅ 点击--看视频")
                 aw.watch_ad()
@@ -117,12 +112,7 @@ def run(d: u2.Device):
                     time.sleep(wait_time)
     except Exception as e:
         log(f"❌ 出错退出：{e}")
-        raise  # 如果需要保留异常，可以重新抛出
+        raise  # 如果需要保留异常，可以重新抛出      
     finally:
-<<<<<<< HEAD:app_scripts/jinritoutiao.py
-        print("关闭今天头条.....")
-        d.app_stop(app_startup_package)
-=======
-        log(f"[{d.serial}] 今日头条 任务完成")
-        d.app_stop("com.ss.android.article.lite")
->>>>>>> 0d02bcbdfe068b997095f0cb1ce382457d2e7bd0:tasks/jinritoutiao.py
+        log(f"[{d.serial}] 番茄音乐 任务完成")
+        d.app_start("com.ss.android.article.lite")

@@ -1,7 +1,7 @@
 import threading
 import random
 import importlib
-import time
+import time, datetime
 from config import ACTIVE_DEVICES as DEVICES, TASKS, MAX_RETRY
 from device import connect_device
 from logger import log, set_default_device
@@ -40,13 +40,24 @@ def run_on_device(serial):
     log("所有任务执行完毕 ✅")
 
 if __name__ == "__main__":
-    threads = []
-    for serial in DEVICES:
-        t = threading.Thread(target=run_on_device, args=(serial,))
-        t.start()
-        threads.append(t)
+    count = 0  # 计数器
 
-    for t in threads:
-        t.join()
+    while True:
+        now = datetime.datetime.now()  # 每次循环都获取当前时间
+        # 如果时间超过 23:30，退出循环
+        if now.hour > 23 or (now.hour == 23 and now.minute >= 30):
+            print(f"⏰ 时间已超过 23:30，总共执行了 {count} 次任务")
+            break
+        # 循环计数
+        count += 1
 
-    log("🎯 全部设备任务执行完成！")
+        threads = []
+        for serial in DEVICES:
+            t = threading.Thread(target=run_on_device, args=(serial,))
+            t.start()
+            threads.append(t)
+
+        for t in threads:
+            t.join()
+
+        print(f"🎯 第 {count} 次全部设备任务执行完成！")
