@@ -1,4 +1,4 @@
-import time
+import time, os, random
 from utils.tools import *
 import uiautomator2 as u2
 from Image_elements.visual_clicker import VisualClicker
@@ -22,8 +22,8 @@ def run(d: u2.Device):
         vc.set_targets(["金币收益"])    
         matched_text = vc.match_text()
         if matched_text == "金币收益":
-            log("⏳ 等待20秒让网页稳定....")
-            time.sleep(20)
+            log("⏳ 等待15秒让网页稳定....")
+            time.sleep(15)
             log("✅ 加载完成，开始工作")
             
             log("识别已连续签到")
@@ -159,8 +159,11 @@ def run(d: u2.Device):
                 log("⏳ 明天才能领取")
             elif matched_text == "今日签到立即":
                 vc.find_and_click()
+                time.sleep(random.uniform(1, 3))
                 vc.set_targets(["今日可领"])
-                vc.find_and_click()
+                time.sleep(random.uniform(1, 3))
+                vc.find_and_click("今日可领")
+                time.sleep(random.uniform(1, 3))
                 d.press("back")
             else:
                 log("⚠️ 未匹配到任何目标文本")
@@ -171,6 +174,8 @@ def run(d: u2.Device):
     finally:
         log(f"[{d.serial}] 抖音极速版 任务完成")
         d.app_stop("com.ss.android.ugc.aweme.lite")
+
+
 
 
 

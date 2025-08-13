@@ -37,7 +37,7 @@ TASKS = [
     "UC",
     "douyin",
     "xigua",
-    "wukong",
+    # "wukong",
     "kuaishou",
     "jinritoutiao"
 ]

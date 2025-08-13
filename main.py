@@ -1,16 +1,21 @@
 import threading
 import random
 import importlib
+import uiautomator2 as u2
 import time, datetime
+from datetime import timedelta
 from config import ACTIVE_DEVICES as DEVICES, TASKS, MAX_RETRY
 from device import connect_device
 from logger import log, set_default_device
+from utils.RevenueStats import *
 
+# ---------------- 原 run_on_device 逻辑 ----------------
 task_locks = {task: threading.Lock() for task in TASKS}
+stats = RevenueStats()
 
 def run_on_device(serial):
     d, device_id = connect_device(serial)
-    set_default_device(d)  # 绑定设备，后续日志自动带设备ID
+    set_default_device(d)
 
     log(f"设备启动任务，设备ID: {serial}")
 
@@ -28,7 +33,9 @@ def run_on_device(serial):
             try:
                 log(f"第 {attempt} 次执行任务 {task_name}")
                 task_module = importlib.import_module(f"tasks.{task_name}")
-                task_module.run(d)
+                result = task_module.run(d)  # 假设返回收益数
+                if isinstance(result, (int, float)):
+                    stats.add_app_revenue(task_name, result)
                 break
             except Exception as e:
                 log(f"任务 {task_name} 出错: {e}")
@@ -39,25 +46,76 @@ def run_on_device(serial):
 
     log("所有任务执行完毕 ✅")
 
+def clear_recent_apps(d: u2.Device):
+    try:
+        # 打开最近任务
+        d.press("recent")  # 比用xpath更稳
+        time.sleep(1.5)
+
+        # 点击“一键清理”按钮
+        clear_btn = d.xpath("//*[@resource-id='com.hihonor.android.launcher:id/clearbox']")
+        if clear_btn.exists:
+            clear_btn.click()
+            time.sleep(2)
+        else:
+            print("找不到清理按钮")
+
+        # 返回桌面
+        d.press("home")
+        time.sleep(1)
+    except Exception as e:
+        print(f"清理后台异常: {e}")
+
+# ---------------- 主循环 ----------------
 if __name__ == "__main__":
-    count = 0  # 计数器
+    count = 0
 
     while True:
-        now = datetime.datetime.now()  # 每次循环都获取当前时间
-        # 如果时间超过 23:30，退出循环
-        if now.hour > 23 or (now.hour == 23 and now.minute >= 30):
-            print(f"⏰ 时间已超过 23:30，总共执行了 {count} 次任务")
+        now = datetime.datetime.now()
+
+        # 如果到 23:00 执行统计并退出
+        if now.hour == 23 and now.minute == 0:
+            log("🕚 到了23:00，开始执行收益统计任务...")
+
+            # 最后执行一次设备任务
+            threads = []
+            for serial in DEVICES:
+                t = threading.Thread(target=run_on_device, args=(serial,))
+                t.start()
+                threads.append(t)
+
+            for t in threads:
+                t.join()
+
+            # 保存日报
+            stats.save_daily_report(d)
+
+            # 如果是月底，保存月报
+            tomorrow = now + timedelta(days=1)
+            if tomorrow.month != now.month:
+                stats.save_monthly_report()
+
+            log("📌 收益统计完成，退出程序")
             break
-        # 循环计数
-        count += 1
 
-        threads = []
-        for serial in DEVICES:
-            t = threading.Thread(target=run_on_device, args=(serial,))
-            t.start()
-            threads.append(t)
+        # 白天正常任务
+        if now.hour < 23 or (now.hour == 23 and now.minute < 0):
+            count += 1
+            threads = []
+            for serial in DEVICES:
+                t = threading.Thread(target=run_on_device, args=(serial,))
+                t.start()
+                threads.append(t)
 
-        for t in threads:
-            t.join()
+            for t in threads:
+                t.join()
 
-        print(f"🎯 第 {count} 次全部设备任务执行完成！")
+            # 多设备分别清理后台
+            for serial in DEVICES:
+                d, _ = connect_device(serial)
+                clear_recent_apps(d)
+
+            log(f"🎯 第 {count} 次全部设备任务执行完成！")
+
+
+        time.sleep(5)  # 控制循环频率
