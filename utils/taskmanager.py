@@ -12,6 +12,12 @@ class TaskManager:
         self.state_file = state_file
         self.state = self.load_state()
 
+        # 在 TaskManager 里直接创建这些对象
+        from Image_elements.visual_clicker import VisualClicker
+        from ad_handler.douyin_handler import DouYinAdWatcher
+        self.vc = VisualClicker(self.d)
+        self.aw = DouYinAdWatcher(self.d)
+
     # ---------------- 状态管理 ----------------
     def load_state(self):
         if os.path.exists(self.state_file):
@@ -57,4 +63,3 @@ class TaskManager:
         else:
             log(f"⚠️ 超过时间，不再执行 {task_name}")
 
-   
