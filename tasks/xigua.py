@@ -26,7 +26,7 @@ def run(d: u2.Device):
         vc.set_targets(["金币收益"])
         matched_text = vc.match_text()
         if matched_text == "金币收益":
-            print("⏳ 等待20秒让网页稳定....")
+            print("⏳ 等待10秒让网页稳定....")
             time.sleep(10)
             print("✅ 加载完成，开始工作")
             
@@ -102,23 +102,23 @@ def run(d: u2.Device):
                     print("⚠️ 未匹配到任何目标文本")
             tm.run_task_once("签到预约领金币", task_daily_checkin)
             
-            # # 点击领宝箱
-            # print('⏳ 开始识别[宝箱任务]')
-            # vc.set_targets(["点击领", "开宝箱"])
-            # matched_text = vc.match_text()
-            # print("🧾 识别结果:", repr(matched_text)) 
-            # if matched_text in ["点击领", "开宝箱"]:
-            #     vc.find_and_click()
-            #     time.sleep(2)
+            # 点击领宝箱
+            print('⏳ 开始识别[宝箱任务]')
+            vc.set_targets(["点击领", "开宝箱"])
+            matched_text = vc.match_text()
+            print("🧾 识别结果:", repr(matched_text)) 
+            if matched_text in ["点击领", "开宝箱"]:
+                vc.find_and_click()
+                time.sleep(2)
                 
-            #     vc.set_targets(["看广告视频", "开心收下", "我知道了"])
-            #     matched_text = vc.match_text()
-            #     if matched_text == "看广告视频":
-            #         vc.find_and_click()
-            #         aw.watch_ad()
-            #     elif matched_text in ["开心收下", "我知道了"]:
-            #         vc.find_and_click()
-            #         d.press("back")
+                vc.set_targets(["看广告视频", "开心收下", "我知道了"])
+                matched_text = vc.match_text()
+                if matched_text == "看广告视频":
+                    vc.find_and_click()
+                    aw.watch_ad()
+                elif matched_text in ["开心收下", "我知道了"]:
+                    vc.find_and_click()
+                    d.press("back")
             
     except Exception as e:
         log(f"❌ 出错退出：{e}")
@@ -130,21 +130,18 @@ def run(d: u2.Device):
         matched_text = vc.match_text()
         if matched_text ==  "去提现":
             # 默认不保存截图，不可视化
-            jinbi = sc.screenshot_and_extract_number_px(device=d, pixel_region = (104, 293, 362, 447))
+            jinbi_text = sc.screenshot_and_extract_number_px(device=d, pixel_region = (104, 293, 362, 447))
             vc.find_and_click("去提现")
-            xianjin = d.xpath('(//com.lynx.tasm.behavior.ui.text.FlattenUIText)[4]').get_text()
             
-        from utils.revenuestats import RevenueStats  
-        # 提取数字
-        jinbi_value = float(re.sub(r'[^\d.]', '', jinbi))
-        xianjin_value = float(re.sub(r'[^\d.]', '', xianjin))
-        # stats 是 RevenueStats 的实例
-        stats = RevenueStats()
-        stats.add_app_revenue(f"{app_name}_金币", jinbi_value)
-        stats.add_app_revenue(f"{app_name}_现金", xianjin_value)
-        
-        print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
-        stats.save_daily_report()
-        log(f"[{d.serial}] 西瓜视频 任务完成")
-        d.app_stop("com.ss.android.article.video")
-
+            xianjin_nodes = d.xpath('(//com.lynx.tasm.behavior.ui.text.FlattenUIText)[4]')
+            # xianjin_text = xianjin_nodes.get_text() if xianjin_nodes.exists else "0"
+            # xianjin_text =  xianjin_nodes.get_text
+           
+            # 提取金额
+            jinbi_value = float(re.sub(r'[^\d.]', '', jinbi_text))
+            xianjin_value = float(re.sub(r'[^\d.]', '', xianjin_text))
+            print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
+            
+            log(f"[{d.serial}] 西瓜视频 任务完成")
+            d.app_stop("com.ss.android.article.video")
+        return jinbi_value, xianjin_value

@@ -2,7 +2,7 @@ import time
 import uiautomator2 as u2
 from typing import List, Optional
 from Image_elements.ocr_helper import SmartController  # 替换为你实际的 OCR 控制器路径
-
+''''''
 class VisualClicker:
     def __init__(self, device: u2.Device, target_texts: List[str] = None, button_keywords: Optional[List[str]] = None):
         self.d = device
@@ -113,12 +113,13 @@ class VisualClicker:
             self._last_elements = elements  # 存下来给 find_and_click 用
 
             matched_targets = []
-            for btn in elements.get("buttons", []):
-                text = btn["text"]
-                for target in self.target_texts:
+            for target in self.target_texts:   # 先按你的目标顺序
+                for btn in elements.get("buttons", []):
+                    text = btn["text"]
                     if target in text:
                         matched_targets.append((target, text))
-
+                        break
+                    
             if matched_targets:
                 for target, full_text in matched_targets:
                     if target in self.target_texts:

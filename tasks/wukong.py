@@ -63,5 +63,6 @@ def run(d: u2.Device):
         log(f"❌ 出错退出：{e}")
         raise  # 如果需要保留异常，可以重新抛出      
     finally:
+        
         log(f"[{d.serial}] 悟空浏览器 任务完成")
         d.app_stop("com.cat.readall")

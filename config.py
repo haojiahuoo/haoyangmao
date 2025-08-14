@@ -34,12 +34,20 @@ DEVICES = None  # 设为None表示自动检测
 ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 
 TASKS = [
-    "UC",
+    # "UC",
     "douyin",
-    "xigua",
+    # "xigua",
     # "wukong",
-    "kuaishou",
+    # "kuaishou",
     "jinritoutiao"
 ]
 
 MAX_RETRY = 3
+
+EXCHANGE_RATES = {
+    "douyin": 10000,   # 抖音极速版：1000 金币 = 1 元
+    "kuaishou": 50000, # 快手极速版：5000 金币 = 1 元
+    "xigua": 33000,  # 今日头条极速版：3000 金币 = 1 元
+    "jinritoutiao": 33000,  # 今日头条极速版：1000 金币 = 1 元
+    # 其他 APP...
+}

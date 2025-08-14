@@ -61,7 +61,7 @@ class DouYinAdWatcher:
                                 task_completed = True
                                 break  
                             if self.d(textContains="添加到主屏幕").exists:
-                               ph.check_and_handle_popup()
+                                ph.check_and_handle_popup()
                             time.sleep(1)  # 避免频繁检查
                         # 任务完成或超时后的处理
                         if task_completed:

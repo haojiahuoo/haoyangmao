@@ -1,4 +1,4 @@
-import time, os, random
+import time, random
 from utils.tools import *
 import uiautomator2 as u2
 from Image_elements.visual_clicker import *
@@ -171,24 +171,24 @@ def run(d: u2.Device):
 
 # ---------------- 每日日常执行的任务 ----------------      
 
-            # 点击领宝箱
-            log('⏳ 开始识别[宝箱任务]')
-            vc.set_targets(["点击领", "开宝箱"])
-            matched_text = vc.match_text()
-            if matched_text in ["点击领", "开宝箱"]:
-                vc.find_and_click()
-                time.sleep(2)
+            # # 点击领宝箱
+            # log('⏳ 开始识别[宝箱任务]')
+            # vc.set_targets(["点击领", "开宝箱"])
+            # matched_text = vc.match_text()
+            # if matched_text in ["点击领", "开宝箱"]:
+            #     vc.find_and_click()
+            #     time.sleep(2)
                 
-                vc.set_targets(["看广告视频", "开心收下", "我知道了"])
-                matched_text = vc.match_text()
-                if matched_text == "看广告视频":
-                    vc.find_and_click()
-                    aw.watch_ad()
-                elif matched_text in ["开心收下", "我知道了"]:
-                    vc.find_and_click()
-                    d.press("back")
-            else:
-                log("⚠️ 未匹配到任何目标文本")
+            #     vc.set_targets(["看广告视频", "开心收下", "我知道了"])
+            #     matched_text = vc.match_text()
+            #     if matched_text == "看广告视频":
+            #         vc.find_and_click()
+            #         aw.watch_ad()
+            #     elif matched_text in ["开心收下", "我知道了"]:
+            #         vc.find_and_click()
+            #         d.press("back")
+            # else:
+            #     log("⚠️ 未匹配到任何目标文本")
                 
             
     except Exception as e:
@@ -199,22 +199,18 @@ def run(d: u2.Device):
         vc.set_targets(["金币收益", "日常任务"])
         matched_text = vc.match_text()
         if matched_text == "金币收益" and "日常任务":
-           vc.find_and_click("金币收益")
-           jinbi = d.xpath('(//com.lynx.tasm.behavior.ui.text.FlattenUIText)[6]').get_text()
-           xianjin = d.xpath('(//com.lynx.tasm.behavior.ui.text.FlattenUIText)[7]').get_text()
-        from utils.revenuestats import RevenueStats  
-        # 提取数字
-        jinbi_value = float(re.sub(r'[^\d.]', '', jinbi))
-        xianjin_value = float(re.sub(r'[^\d.]', '', xianjin))
-        # stats 是 RevenueStats 的实例
-        stats = RevenueStats()
-        stats.add_app_revenue(f"{app_name}_金币", jinbi_value)
-        stats.add_app_revenue(f"{app_name}_现金", xianjin_value)
-        
-        print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
-        stats.save_daily_report()
-        log(f"[{d.serial}] 抖音极速版 任务完成")
-        d.app_stop("com.ss.android.ugc.aweme.lite")
+            vc.find_and_click("金币收益")
+            time.sleep(5)
+            jinbi_text = d(className="com.lynx.tasm.behavior.ui.text.FlattenUIText", instance=5).get_text() or "0"
+            xianjin_text = d(className="com.lynx.tasm.behavior.ui.text.FlattenUIText", instance=6).get_text() or "0"
+
+            jinbi_value = float(re.sub(r'[^\d.]', '', jinbi_text))
+            xianjin_value = float(re.sub(r'[^\d.]', '', xianjin_text))
+            print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
+            
+            log(f"[{d.serial}] 抖音极速版 任务完成")
+            d.app_stop("com.ss.android.ugc.aweme.lite")
+        return jinbi_value, xianjin_value  
 
 
 
