@@ -2,7 +2,7 @@ import time
 import uiautomator2 as u2
 from typing import List, Optional
 from Image_elements.ocr_helper import SmartController  # 替换为你实际的 OCR 控制器路径
-''''''
+
 class VisualClicker:
     def __init__(self, device: u2.Device, target_texts: List[str] = None, button_keywords: Optional[List[str]] = None):
         self.d = device

@@ -7,7 +7,7 @@ from datetime import timedelta
 from config import ACTIVE_DEVICES as DEVICES, TASKS, MAX_RETRY
 from device import connect_device
 from logger import log, set_default_device
-from utils.RevenueStats import *
+from utils.revenuestats import *
 
 # ---------------- 原 run_on_device 逻辑 ----------------
 task_locks = {task: threading.Lock() for task in TASKS}
@@ -51,13 +51,22 @@ def clear_recent_apps(d: u2.Device):
         # 打开最近任务
         d.press("recent")  # 比用xpath更稳
         time.sleep(1.5)
+        
+        clear_btns = [
+            "com.oppo.launcher:id/btn_clear",
+            "//*[@resource-id='com.hihonor.android.launcher:id/clearbox']",
+        ]
 
-        # 点击“一键清理”按钮
-        clear_btn = d.xpath("//*[@resource-id='com.hihonor.android.launcher:id/clearbox']")
-        if clear_btn.exists:
-            clear_btn.click()
-            time.sleep(2)
-        else:
+        found = False
+        for i in clear_btns:
+            clear_btn = d.xpath(i)
+            if clear_btn.exists:
+                clear_btn.click()
+                time.sleep(2)
+                found = True
+                break
+
+        if not found:
             print("找不到清理按钮")
 
         # 返回桌面

@@ -1,7 +1,9 @@
-import time, cv2, re
+import time, cv2, re, os
 import numpy as np
 from cnocr import CnOcr
 from typing import List, Dict, Tuple, Optional
+import datetime
+import uiautomator2 as u2
 
 class SmartController:
     def __init__(self):
@@ -11,7 +13,7 @@ class SmartController:
             rec_model_name='densenet_lite_136-gru',
             box_score_thresh=0.3
         )
-        
+       
     def _analyze_elements(self, ocr_results: List[Dict], img_shape: Tuple[int], button_keywords: Optional[List[str]] = None) -> Dict:
         """分析OCR结果，识别按钮和关键文本"""
         h, w = img_shape[:2]
@@ -20,7 +22,7 @@ class SmartController:
         
         # 按钮特征：包含动作词且通常位于底部或右侧
         
-        default_keywords = ["看视频"]
+        default_keywords = []
         # 如果传了自定义关键词，使用它；否则用默认值
         button_keywords = button_keywords or default_keywords
         for res in ocr_results:
@@ -114,3 +116,58 @@ class SmartController:
         elements = self._analyze_elements(ocr_results, img.shape, button_keywords=button_keywords)
         
         return elements
+    
+    def screenshot_and_extract_number_px(
+        self,
+        device: u2.Device,
+        pixel_region: Tuple[int, int, int, int],  # x1, y1, x2, y2
+        number_pattern: str = r'\d+(?:\.\d+)?',
+        save_dir: str = "./screenshots",
+        save_screenshot: bool = False,
+        visualize: bool = False,
+        invert: bool = False  # 是否反色
+    ) -> Optional[str]:
+        """
+        通用截图+像素裁剪+灰度二值化+OCR数字提取
+        """
+        os.makedirs(save_dir, exist_ok=True)
+
+        # 截图
+        if save_screenshot or visualize:
+            filename = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+            screenshot_path = os.path.join(save_dir, filename)
+            device.screenshot(screenshot_path)
+            img = cv2.imread(screenshot_path)
+            if img is None:
+                raise ValueError("无法读取图片")
+        else:
+            img = device.screenshot(format='opencv')
+
+        # 裁剪像素区域
+        x1, y1, x2, y2 = pixel_region
+        cropped = img[y1:y2, x1:x2]
+
+        # 灰度 + 二值化
+        gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        if invert:
+            thresh = cv2.bitwise_not(thresh)
+
+        # 可视化裁剪区域
+        if visualize:
+            vis_img = img.copy()
+            cv2.rectangle(vis_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            vis_path = os.path.join(save_dir, f"visualize_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
+            cv2.imwrite(vis_path, vis_img)
+            print(f"✅ 可视化裁剪区域已保存: {vis_path}")
+
+        # OCR识别
+        ocr_results = self.ocr.ocr(thresh)
+        for res in ocr_results:
+            text = res['text'].strip()
+            match = re.search(number_pattern, text)
+            if match:
+                return match.group()
+
+        return None

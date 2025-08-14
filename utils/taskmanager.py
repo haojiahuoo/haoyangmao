@@ -6,13 +6,19 @@ import uiautomator2 as u2
 from logger import log
 
 class TaskManager:
-    def __init__(self, device: u2.Device, app_package: str, state_file="task_state.json"):
+    def __init__(self, device: u2.Device, app_package: str, state_dir="task_states"):
         self.d = device
         self.app_package = app_package
-        self.state_file = state_file
+
+        # 在 state_dir 下按 app_package 创建子文件夹
+        app_dir = os.path.join(state_dir, self.app_package)
+        os.makedirs(app_dir, exist_ok=True)
+
+        # 每台设备独立状态文件
+        self.state_file = os.path.join(app_dir, f"{self.d.serial}.json")
         self.state = self.load_state()
 
-        # 在 TaskManager 里直接创建这些对象
+        # 初始化 VisualClicker 和 DouYinAdWatcher
         from Image_elements.visual_clicker import VisualClicker
         from ad_handler.douyin_handler import DouYinAdWatcher
         self.vc = VisualClicker(self.d)
