@@ -20,9 +20,7 @@ class TaskManager:
 
         # 初始化 VisualClicker 和 DouYinAdWatcher
         from Image_elements.visual_clicker import VisualClicker
-        from ad_handler.douyin_handler import DouYinAdWatcher
         self.vc = VisualClicker(self.d)
-        self.aw = DouYinAdWatcher(self.d)
 
     # ---------------- 状态管理 ----------------
     def load_state(self):

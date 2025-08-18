@@ -17,9 +17,8 @@ def run(d: u2.Device):
         vc = VisualClicker(d)
         aw = DouYinAdWatcher(d) 
         
-        if wait_exists(d(textContains="首页")):
-            d.xpath("//android.widget.TabHost/android.widget.FrameLayout[2]/android.widget.FrameLayout[2]/android.widget.FrameLayout[1]/android.widget.ImageView[2]").click()
-        
+        if d(textContains="首页").exists:
+            click_by_xpath_text(d, xpaths="//android.widget.TabHost/android.widget.FrameLayout[2]/android.widget.FrameLayout[2]/android.widget.FrameLayout[1]/android.widget.ImageView[2]")
         vc.set_targets(["金币收益"])    
         matched_text = vc.match_text()
         if matched_text == "金币收益":
@@ -27,8 +26,8 @@ def run(d: u2.Device):
             time.sleep(10)
             log("✅ 加载完成，开始工作")
 
-# ---------------- 每日执行一次的任务 ----------------
-            # ------------弹窗的处理 ----------------
+#---------------- 每日执行一次的任务 ----------------
+            #------------弹窗的处理 ----------------
             def task_daily_checkin():
                 log("识别每日签到")
                 vc.set_targets(["签到领"])
@@ -171,39 +170,50 @@ def run(d: u2.Device):
 
 # ---------------- 每日日常执行的任务 ----------------      
 
-            # # 点击领宝箱
-            # log('⏳ 开始识别[宝箱任务]')
-            # vc.set_targets(["点击领", "开宝箱"])
-            # matched_text = vc.match_text()
-            # if matched_text in ["点击领", "开宝箱"]:
-            #     vc.find_and_click()
-            #     time.sleep(2)
+            # 点击领宝箱
+            log('⏳ 开始识别[宝箱任务]')
+            vc.set_targets(["点击领", "开宝箱"])
+            matched_text = vc.match_text()
+            if matched_text in ["点击领", "开宝箱"]:
+                vc.find_and_click()
+                time.sleep(2)
                 
-            #     vc.set_targets(["看广告视频", "开心收下", "我知道了"])
-            #     matched_text = vc.match_text()
-            #     if matched_text == "看广告视频":
-            #         vc.find_and_click()
-            #         aw.watch_ad()
-            #     elif matched_text in ["开心收下", "我知道了"]:
-            #         vc.find_and_click()
-            #         d.press("back")
-            # else:
-            #     log("⚠️ 未匹配到任何目标文本")
+                vc.set_targets(["看广告视频", "开心收下", "我知道了"])
+                matched_text = vc.match_text()
+                if matched_text == "看广告视频":
+                    vc.find_and_click()
+                    aw.watch_ad()
+                elif matched_text in ["开心收下", "我知道了"]:
+                    vc.find_and_click()
+                    d.press("back")
+            else:
+                log("⚠️ 未匹配到任何目标文本")
                 
             
     except Exception as e:
         log(f"❌ 出错退出：{e}")
         raise  # 如果需要保留异常，可以重新抛出      
     finally:
-        import re
-        vc.set_targets(["金币收益", "日常任务"])
+        log("⏳ 开始拖动--日常任务")
+        vc.set_targets(["日常任务"])
         matched_text = vc.match_text()
-        if matched_text == "金币收益" and "日常任务":
-            vc.find_and_click("金币收益")
+        pos =  vc.find_and_click("日常任务")
+        if pos:
+            x, y = pos
+            # 拖动到顶部（比如 y=100）
+            d.swipe(x, y, x, 1180, 0.3)
+        import re
+        vc.set_targets(["现金收益"])
+        matched_text = vc.match_text()
+        if matched_text == "现金收益":
+            vc.find_and_click("现金收益")
             time.sleep(5)
-            jinbi_text = d(className="com.lynx.tasm.behavior.ui.text.FlattenUIText", instance=5).get_text() or "0"
-            xianjin_text = d(className="com.lynx.tasm.behavior.ui.text.FlattenUIText", instance=6).get_text() or "0"
-
+        
+            text = d.xpath('//*[contains(@text, "金币收益") and contains(@text, "金币收益")]').text
+            print(f"识别到文本: {text}")
+            jinbi_text = re.search(r'金币收益(\d+)', text).group(1)
+            xianjin_text = re.search(r'现金收益\(元\)([\d.]+)', text).group(1)
+            
             jinbi_value = float(re.sub(r'[^\d.]', '', jinbi_text))
             xianjin_value = float(re.sub(r'[^\d.]', '', xianjin_text))
             print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")

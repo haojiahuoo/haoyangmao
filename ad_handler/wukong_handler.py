@@ -19,7 +19,9 @@ class WuKongAdWatcher:
             "跳过",
             "秒小游戏",
             "后进入直播间",
-           " 看视频再"
+            " 看视频再",
+            "我要反馈",
+            "恭喜获得奖励"
         ]
      
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
@@ -67,16 +69,23 @@ class WuKongAdWatcher:
                             self.d.press("back")  # 返回
                             time.sleep(2)
                             click_by_xpath_text(self.d, "看视频再")
-                
+                            
+                    if "我要反馈" in elements[0].text:
+                        click_by_xpath_text(self.d, xpaths="(//android.widget.ImageView)[9]")
+                    
+                    if "恭喜获得奖励" in elements[0].text:
+                        click_by_xpath_text(self.d, xpaths="((//android.widget.ImageView)[2]")  
+                          
                 if self.d.xpath('//*[@resource-id="app"]').exists:
                     self.d.press("back")
                 
-                vc.set_targets(["看视频+"])
-                vc.find_and_click()
-            
-                vc.set_targets(["看视频再领"])
-                vc.find_and_click()
-                
+                vc.set_targets(["看视频+", "看视频再领"])
+                matched_text = vc.match_text()
+                if matched_text == "看视频+":
+                    vc.find_and_click()
+                elif matched_text == "看视频再领":
+                    vc.find_and_click()
+
                 if self.d.xpath('//*[@resource-id="app"]').exists:
                         self.d.press("back")
                             

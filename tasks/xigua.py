@@ -1,11 +1,11 @@
-import time 
+import time, random, re
 import uiautomator2 as u2
 from utils.tools import *
 from Image_elements.visual_clicker import VisualClicker
 from ad_handler.xigua_handler import XiGuaAdWatcher
 from logger import log
 from utils.taskmanager import TaskManager
-from Image_elements.ocr_helper import SmartController
+
 def run(d: u2.Device):
     try:
         app_name = "西瓜视频"
@@ -17,11 +17,9 @@ def run(d: u2.Device):
         aw = XiGuaAdWatcher(d)
         tm = TaskManager(d, app_name)
         
-        try:
-            target = d.xpath('//android.widget.RelativeLayout[3]//android.widget.ImageView[contains(@resource-id, "com.ss.android.article.video:id")]')
-            target.click(timeout=5)
-        except Exception as e:
-            print(f"⚠️ 点击失败: {e}")
+        click_by_xpath_text(d, "我的")
+        time.sleep(random.uniform(1, 3))
+        click_by_xpath_text(d, "去赚现金")
         
         vc.set_targets(["金币收益"])
         matched_text = vc.match_text()
@@ -35,21 +33,14 @@ def run(d: u2.Device):
             
             def task_daily_checkin():
                 print("⏳ 开始识别[签到7天领金币]弹窗")
-                vc.set_targets(["立即签到+"])
-                matched_text = vc.match_text()
-                if vc.find_and_click():
-                    print("✅ 点击--立即签到+")
-                    vc.set_targets(["看广告视频"])
-                    if vc.find_and_click():
-                        print("✅ 点击--看广告视频")
+                if vc.click_by("立即签到+"):
+                    if vc.click_by("看广告视频"):
                         aw.watch_ad()
             tm.run_task_once("[签到7天领金币]弹窗", task_daily_checkin)
             
             def task_daily_checkin():
                 print("⏳ 开始识别[开宝箱奖励]弹窗")
-                vc.set_targets(["看广告视频"])
-                if vc.find_and_click():
-                    print("✅ 点击--看广告视频")
+                if vc.click_by("看广告视频"):
                     aw.watch_ad()
             tm.run_task_once("[开宝箱奖励]弹窗", task_daily_checkin)
             
@@ -124,24 +115,17 @@ def run(d: u2.Device):
         log(f"❌ 出错退出：{e}")
         raise  # 如果需要保留异常，可以重新抛出
     finally:
-        import re
-        sc = SmartController()
-        vc.set_targets(["去提现"])
-        matched_text = vc.match_text()
-        if matched_text ==  "去提现":
-            # 默认不保存截图，不可视化
-            jinbi_text = sc.screenshot_and_extract_number_px(device=d, pixel_region = (104, 293, 362, 447))
-            vc.find_and_click("去提现")
-            
-            xianjin_nodes = d.xpath('(//com.lynx.tasm.behavior.ui.text.FlattenUIText)[4]')
-            # xianjin_text = xianjin_nodes.get_text() if xianjin_nodes.exists else "0"
-            # xianjin_text =  xianjin_nodes.get_text
-           
-            # 提取金额
+        d.press("back")
+        time.sleep(1)
+        if d(textContains="去赚现金").exists:
+            time.sleep(1)
+            jinbi_text = d(resourceId="com.ss.android.article.video:id/ep3").get_text() or "0"
             jinbi_value = float(re.sub(r'[^\d.]', '', jinbi_text))
+        
+            xianjin_text = d(resourceId="com.ss.android.article.video:id/ep7").get_text() or "0"
             xianjin_value = float(re.sub(r'[^\d.]', '', xianjin_text))
-            print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
             
+            print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
             log(f"[{d.serial}] 西瓜视频 任务完成")
             d.app_stop("com.ss.android.article.video")
         return jinbi_value, xianjin_value

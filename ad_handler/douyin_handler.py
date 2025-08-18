@@ -14,6 +14,7 @@ class DouYinAdWatcher:
             "领取成功", 
             "说点什么",
             "恭喜累计获得奖励",
+            "后进入直播间"
         ]
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
         vc = VisualClicker(self.d)
@@ -44,7 +45,11 @@ class DouYinAdWatcher:
                         else:
                             vc.set_targets(["评价并收下金币"])
                             vc.find_and_click()
-
+                    
+                    if "后进入直播间" in elements[0].text:
+                        print("🗨️ 发现-进入直播间-弹窗")
+                        click_by_xpath_text(self.d, "取消")
+                                            
                     if "说点什么" in elements[0].text:
                         print("🗨️ 发现-直播-弹窗")
                         while_start_time = time.time()

@@ -1,8 +1,8 @@
-import time
+import time, random
 import uiautomator2 as u2
 from typing import List, Optional
 from Image_elements.ocr_helper import SmartController  # 替换为你实际的 OCR 控制器路径
-''''''
+from logger import log  # 替换为你实际的日志记录器路径
 class VisualClicker:
     def __init__(self, device: u2.Device, target_texts: List[str] = None, button_keywords: Optional[List[str]] = None):
         self.d = device
@@ -25,12 +25,12 @@ class VisualClicker:
 
     def find_and_click(self, target=None, retries=1, delay=2, elements=None):
         for attempt in range(retries):
-            print(f" 第{attempt + 1}次识别目标文本并尝试点击...")
+            log(f" 第{attempt + 1}次识别目标文本并尝试点击...")
 
             # 优先用 match_text 的缓存结果
             if elements is None and hasattr(self, "_last_elements") and self._last_elements:
                 elements = self._last_elements
-                print("📌 使用 match_text() 的缓存结果")
+                log("📌 使用 match_text() 的缓存结果")
                 screen_path = None
             elif elements is None:
                 screen_path = self.screenshot(f'screen_click_{attempt}.png')
@@ -43,7 +43,7 @@ class VisualClicker:
 
             buttons = elements.get('buttons', [])
             if not buttons:
-                print("❌ 未检测到任何可点击元素")
+                log("❌ 未检测到任何可点击元素")
                 time.sleep(delay)
                 continue
 
@@ -73,7 +73,7 @@ class VisualClicker:
             if chosen_btn:
                 cx = int(chosen_btn['center'][0] * self.screen_width)
                 cy = int(chosen_btn['center'][1] * self.screen_height)
-                print(f"✅ 点击 '{chosen_btn.get('text')}'，坐标 ({cx}, {cy})")
+                log(f"✅ 点击 '{chosen_btn.get('text')}'，坐标 ({cx}, {cy})")
                 self.d.click(cx, cy)
                 if screen_path:
                     self.ocr_helper.visualize_results(screen_path, f'screen_click_result_{attempt}.png')
@@ -81,12 +81,12 @@ class VisualClicker:
 
             time.sleep(delay)
 
-        print("❌ 未找到目标文本，点击失败")
+        log("❌ 未找到目标文本，点击失败")
         return False
 
     def exists(self, retries=2, delay=2) -> bool:
         for attempt in range(retries):
-            print(f"🔍 第{attempt + 1}次检测目标文本是否存在...")
+            log(f"🔍 第{attempt + 1}次检测目标文本是否存在...")
             screen_path = self.screenshot(f'screen_check_{attempt}.png')
             elements = self.ocr_helper.detect_clickable_elements(
                 screen_path,
@@ -96,10 +96,10 @@ class VisualClicker:
             for btn in elements.get('buttons', []):
                 text = btn['text']
                 if any(target in text for target in self.target_texts):
-                    print(f"✅ 检测到目标文本 '{text}'")
+                    log(f"✅ 检测到目标文本 '{text}'")
                     return True
             time.sleep(delay)
-        print("❌ 未检测到目标文本")
+        log("❌ 未检测到目标文本")
         return False
 
     def match_text(self, retries=2, delay=2, return_full_text=False):
@@ -124,13 +124,26 @@ class VisualClicker:
                 for target, full_text in matched_targets:
                     if target in self.target_texts:
                         if return_full_text:
-                            print(f"✅ 匹配完整文本: {full_text}")
+                            log(f"✅ 匹配完整文本: {full_text}")
                             return full_text
                         else:
-                            print(f"✅ 匹配关键词: {target}")
+                            log(f"✅ 匹配关键词: {target}")
                             return target
             time.sleep(delay)
         return ""
-
+    
+    def click_by(self, text) -> bool:
+        self.set_targets([f"{text}"])
+        matched_text = self.match_text()
+        if matched_text == text:
+            log(f"🗨️ 发现-{text}-元素")
+            self.find_and_click()
+            log(f"🗨️ 点击-{text}-元素")
+            time.sleep(random.uniform(1, 3))
+            return True
+        else:
+            log(f"❌ 未找到目标文本: {text}")
+            return False
+    
     def __bool__(self):
         return self.exists()

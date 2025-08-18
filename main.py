@@ -67,10 +67,9 @@ def clear_recent_apps(d: u2.Device):
     """
     try:
         d.press("home")
-        time.sleep(1.5)
+        time.sleep(1)
         d.press("recent")
         time.sleep(1.5)
-        
         clear_btns = [
             "com.oppo.launcher:id/btn_clear",
             "//*[@resource-id='com.hihonor.android.launcher:id/clearbox']",
@@ -86,6 +85,7 @@ def clear_recent_apps(d: u2.Device):
                 break
 
         if not found:
+            d.press("back")
             log("找不到清理按钮")
             
     except Exception as e:
@@ -94,8 +94,8 @@ def clear_recent_apps(d: u2.Device):
 
 # ---------------- 主循环 ----------------
 if __name__ == "__main__":
-    count = 0
 
+    count = 0
     while True:
         now = datetime.datetime.now()
 
@@ -108,13 +108,16 @@ if __name__ == "__main__":
             count += 1
             threads = []
             for serial in DEVICES:
+                d, _ = connect_device(serial)
+                clear_recent_apps(d)
                 t = threading.Thread(target=run_on_device, args=(serial,))
                 t.start()
                 threads.append(t)
 
             for t in threads:
                 t.join()
-
+                d, _ = connect_device(serial)
+                clear_recent_apps(d)
             # 多设备清理后台
             for serial in DEVICES:
                 d, _ = connect_device(serial)
@@ -122,4 +125,4 @@ if __name__ == "__main__":
 
             log(f"🎯 第 {count} 次全部设备任务执行完成！")
 
-        time.sleep(5)  # 控制循环频率
+        time.sleep(300)  # 控制循环频率

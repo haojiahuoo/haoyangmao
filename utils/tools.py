@@ -1,6 +1,7 @@
 import time
 import uiautomator2 as u2
 from typing import Union
+from logger import log, log_error, log_debug
 
 def click_by_xpath_text(
     d: u2.Device,
@@ -8,7 +9,7 @@ def click_by_xpath_text(
     timeout: float = 10.0,
     wait_gone: bool = False,
     raise_error: bool = False,
-    log_prefix: str = "",
+    log: str = "",
     xpaths: Union[str, list[str], None] = None,  # 直接传 XPath
     **attrs  # 额外的控件属性，如 className="xxx", resourceId="xxx"
 ) -> bool:
@@ -57,14 +58,14 @@ def click_by_xpath_text(
         if selector.wait(timeout=timeout):
             nodes = selector.all()
             if not nodes:
-                print(f"{log_prefix}[失败] 未找到元素节点")
+                print(f"{log}[失败] 未找到元素节点")
                 return False
 
             # 优先点击可点击节点
             for n in nodes:
                 if n.info.get('clickable', False):
                     n.click()
-                    print(f"{log_prefix}✅ 点击可点击节点: {n.info}")
+                    print(f"{log}✅ 点击可点击节点")
                     if wait_gone:
                         if selector.wait_gone(timeout=timeout):
                             return True
@@ -80,7 +81,7 @@ def click_by_xpath_text(
                 x = (bounds['left'] + bounds['right']) // 2
                 y = (bounds['top'] + bounds['bottom']) // 2
                 d.click(x, y)
-                print(f"{log_prefix}⚠️ 坐标点击节点: {nodes[0].info}")
+                print(f"{log}⚠️ 坐标点击节点: {nodes[0].bounds}")
                 if wait_gone:
                     if selector.wait_gone(timeout=timeout):
                         return True
@@ -90,15 +91,15 @@ def click_by_xpath_text(
                 else:
                     return True
 
-            print(f"{log_prefix}❌ 找到元素但无法点击: {nodes[0].info}")
+            print(f"{log}❌ 找到元素但无法点击: {nodes[0].info}")
             return False
         else:
-            print(f"{log_prefix}[失败] 未找到匹配的元素")
+            print(f"{log}[失败] 未找到匹配的元素")
             if raise_error:
                 raise TimeoutError(f"未找到匹配的元素")
             return False
     except Exception as e:
-        print(f"{log_prefix}[异常] 错误: {e}")
+        print(f"{log}[异常] 错误: {e}")
         if raise_error:
             raise
         return False

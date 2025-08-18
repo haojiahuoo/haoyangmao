@@ -40,7 +40,7 @@ class SmartController:
                     "center": self._get_center(bbox)
                 })
             # 识别关键数值
-            elif re.search(r'\d+\.?\d*(金币|现金|天|万)', text):
+            elif re.search(r'\d+\.?\d*(元宝|金币|现金|天|万)', text):
                 key_texts.append({
                     "text": text,
                     "bbox": bbox,

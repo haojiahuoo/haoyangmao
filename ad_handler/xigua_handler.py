@@ -13,9 +13,18 @@ class XiGuaAdWatcher:
             "说点什么",
             "看广告已累计"
         ]
-     
+
+            
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
         vc = VisualClicker(self.d)
+        def click_by(text) -> bool:
+            vc.set_targets([f"{text}"])
+            matched_text = vc.match_text()
+            if matched_text == text:
+                print(f"🗨️ 发现-{text}-弹窗")
+                vc.find_and_click()
+                time.sleep(random.uniform(1, 3))
+        
         time.sleep(10)  # 等待界面稳定
         print("[开启刷广告模式.....]")
         start_time = time.time()
@@ -29,11 +38,6 @@ class XiGuaAdWatcher:
                     for i, element in enumerate(elements, 1):
                         print(f"匹配元素1 {i}/{len(elements)}: {element.text}")
                     
-                    if "看广告已累计" in elements[0].text:
-                        print("🗨️ 发现-累计获奖-弹窗")
-                        click_by_xpath_text(self.d, "评价并关闭")
-                    
-                        
                     if "领取成功" in elements[0].text:
                         print(f"✅ 任务完成（检测到: {elements[0].text}）")
                         elements[0].click()
@@ -41,9 +45,11 @@ class XiGuaAdWatcher:
                         if click_by_xpath_text(self.d, ["领取奖励", "评价并关闭"]):
                             pass
                         else:
-                            vc.set_targets(["评价并关闭"])
-                            vc.find_and_click()
-
+                            click_by("评价并关闭")
+                            
+                click_by("评价并关闭")
+                
+                click_by("看广告视频")    
                 if self.d.xpath('//*[@text="邀请你参与西瓜体验反馈"]').exists:
                     self.d.press("back")
                 

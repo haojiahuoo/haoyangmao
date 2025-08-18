@@ -16,6 +16,7 @@ class KuaiShouAdWatcher:
             "再看一个",  # 1
             "领取成功",
             "说点什么", # 1
+            "聊一聊"
         ]
         self.claim_texts = [
             "明日签到可领",
@@ -38,7 +39,7 @@ class KuaiShouAdWatcher:
                     for i, element in enumerate(elements, 1):
                         print(f"匹配元素1 {i}/{len(elements)}: {element.text}")
                         
-                    if "说点什么" in elements[0].text:
+                    if "说点什么" in elements[0].text or "聊一聊" in elements[0].text:
                         print("🗨️ 发现-直播-弹窗")
                         while_start_time = time.time()
                         task_completed = False

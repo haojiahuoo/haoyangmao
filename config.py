@@ -25,29 +25,32 @@ def get_connected_devices():
 # 模式1. 手动指定设备（取消下面DEVICES的注释）
 # 模式2. 自动检测设备（保持DEVICES = None）
 
-DEVICES = None  # 设为None表示自动检测
-# DEVICES = [  # 手动指定设备
-#     "9a5dbfaf",
-#     # "A3KUVB2428008483",
-# ]
+# DEVICES = None  # 设为None表示自动检测
+DEVICES = [  # 手动指定设备
+    "9a5dbfaf",
+    # "A3KUVB2428008483",
+]
 
 ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 
 TASKS = [
-    # "UC",
+    "UC",
     "douyin",
-    # "xigua",
-    # "wukong",
-    # "kuaishou",
-    "jinritoutiao"
+    "xigua",
+    "wukong",
+    "kuaishou",
+    "jinritoutiao",
+    "fanqieyinyue",  # 番茄音乐
 ]
 
 MAX_RETRY = 3
 
 EXCHANGE_RATES = {
     "douyin": 10000,   # 抖音极速版：1000 金币 = 1 元
-    "kuaishou": 50000, # 快手极速版：5000 金币 = 1 元
+    "kuaishou": 10000, # 快手极速版：5000 金币 = 1 元
     "xigua": 33000,  # 今日头条极速版：3000 金币 = 1 元
     "jinritoutiao": 33000,  # 今日头条极速版：1000 金币 = 1 元
-    # 其他 APP...
+    "wukong": 33000,  # 猿辅导极速版：1000 金币 = 1 元    # 其他 APP...
+    "UC": 33000,
+    "fanqieyinyue": 33000,  # 番茄音乐：1000 金币 = 1 元
 }

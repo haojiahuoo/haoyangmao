@@ -1,5 +1,6 @@
 import uiautomator2 as u2
 import time
+from utils.tools import *
 
 class FanQieYinYueAdWatcher:
     def __init__(self, d: u2.Device):
@@ -13,15 +14,11 @@ class FanQieYinYueAdWatcher:
             "再看一个",
             "领取成功",
             "说点什么",
-        ]
-        self.claim_texts = [
-            "明日签到可领",
-            "再看一个",
-            "恭喜完成观看任务",
+            "开心收下",
             "领取奖励"
             
         ]
-
+    
     def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
         time.sleep(10)  # 等待界面稳定
         start_time = time.time()
@@ -44,24 +41,21 @@ class FanQieYinYueAdWatcher:
                             time.sleep(2) 
                         
                     if "领取成功" in elements[0].text:
+                        if self.d.xpath('//*[contains(@text, "秒")]').exists:
+                            print("✅ 检测到--秒, 任务完成")
+                            click_by_xpath_text(self.d, xpaths='(//com.lynx.tasm.ui.image.UIImage)[2]')
+                        else:    
+                            print(f"✅ 任务完成-检测到: {elements[0].text}")
+                            click_by_xpath_text(self.d, xpaths='//*[contains(@text, "领取成功")]/following-sibling::*[1]')
+                    
+                        
+                    if "开心收下" in elements[0].text:
                         print(f"✅ 任务完成-检测到: {elements[0].text}")
-                        self.d.xpath('//*[contains(@text, "领取成功")]/following-sibling::*[2]').click()
-                        time.sleep(2)
-                        # 尝试领取奖励
-                        claim_xpath = " | ".join(
-                            f'//*[contains(@text, "{text}")]' for text in self.claim_texts
-                        )
-                        if claims := self.d.xpath(claim_xpath).all():
-                            for i, claim in enumerate(claims, 1):
-                                print(f"匹配元素2 {i}/{len(claims)}: {claim.text}")
-                            
-                            if "再看一个" in claims[0].text:
-                                print("🗨️ 发现-再看一个-弹窗")
-                                claim = self.d(textContains="再看一个")
-                                claim.click()
-                                print("✅ 点击--再看一个")
-                                time.sleep(1)
-                                continue  # 继续监控广告
+                        click_by_xpath_text(self.d, "开心收下")
+                
+                if self.d.xpath('//*[@text="领取奖励"]').exists:  
+                    click_by_xpath_text(self.d, "领取奖励")
+                    
                 if self.d.xpath('//*[@resource-id="app"]').exists:
                     self.d.press("back")
                     
