@@ -33,6 +33,8 @@ def run_on_device(serial):
 
             try:
                 log(f"第 {attempt} 次执行任务 {task_name}")
+                # 先清理后台
+                clear_recent_apps(d)
                 task_module = importlib.import_module(f"tasks.{task_name}")
                 result = task_module.run(d)
 
@@ -108,21 +110,13 @@ if __name__ == "__main__":
             count += 1
             threads = []
             for serial in DEVICES:
-                d, _ = connect_device(serial)
-                clear_recent_apps(d)
                 t = threading.Thread(target=run_on_device, args=(serial,))
                 t.start()
                 threads.append(t)
 
             for t in threads:
                 t.join()
-                d, _ = connect_device(serial)
-                clear_recent_apps(d)
-            # 多设备清理后台
-            for serial in DEVICES:
-                d, _ = connect_device(serial)
-                clear_recent_apps(d)
-
+                
             log(f"🎯 第 {count} 次全部设备任务执行完成！")
 
         time.sleep(300)  # 控制循环频率

@@ -27,20 +27,20 @@ def get_connected_devices():
 
 # DEVICES = None  # 设为None表示自动检测
 DEVICES = [  # 手动指定设备
-    "9a5dbfaf",
-    # "A3KUVB2428008483",
+    # "9a5dbfaf",
+    "A3KUVB2428008483",
 ]
 
 ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 
 TASKS = [
-    "UC",
-    "douyin",
-    "xigua",
-    "wukong",
+    # "UC",
+    # "douyin",
+    # "xigua",
+    # "wukong",
     "kuaishou",
-    "jinritoutiao",
-    "fanqieyinyue",  # 番茄音乐
+    # "jinritoutiao",
+    # "fanqieyinyue",  # 番茄音乐
 ]
 
 MAX_RETRY = 3
