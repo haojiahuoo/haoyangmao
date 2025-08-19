@@ -210,13 +210,13 @@ def run(d: u2.Device):
             time.sleep(5)
         
             text = d.xpath('//*[contains(@text, "金币收益") and contains(@text, "金币收益")]').text
-            print(f"识别到文本: {text}")
+            log(f"识别到文本: {text}")
             jinbi_text = re.search(r'金币收益(\d+)', text).group(1)
             xianjin_text = re.search(r'现金收益\(元\)([\d.]+)', text).group(1)
             
             jinbi_value = float(re.sub(r'[^\d.]', '', jinbi_text))
             xianjin_value = float(re.sub(r'[^\d.]', '', xianjin_text))
-            print(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
+            log(f"{app_name} 收益已记录: 金币={jinbi_value}, 现金={xianjin_value}")
             
             log(f"[{d.serial}] 抖音极速版 任务完成")
             d.app_stop("com.ss.android.ugc.aweme.lite")

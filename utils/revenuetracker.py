@@ -59,7 +59,7 @@ class RevenueTracker:
         daily_records = self.daily_data.get(date_str, {})
         
         total_sum = sum(
-            info["xianjin"] + info["jinbi"] / self.app_rates.get(app.split('_')[0], 1)
+            info["xianjin"] + info["jinbi"] / self.app_rates.get(app, 1)
             for (app, _), info in daily_records.items()
         )
         return round(total_sum, 2)
@@ -97,38 +97,11 @@ class RevenueTracker:
         path = self.get_excel_path(date_str)
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
-        # 1) 读取现有数据
-        existing_records = {}
-        total_row_data = None
-        if os.path.exists(path):
-            try:
-                wb_old = load_workbook(path, data_only=True)
-                ws_old = wb_old.active
-                for row in ws_old.iter_rows(min_row=2, values_only=True):
-                    if not row or all(c is None for c in row):
-                        continue
-                    app, device = row[1], row[2]
-                    if app == "累计":
-                        total_row_data = {
-                            "jinbi": float(row[3] or 0),
-                            "zhehe": float(row[4] or 0),
-                            "yue": float(row[5] or 0),
-                            "tixian": float(row[6] or 0),
-                            "sum": float(row[7] or 0)
-                        }
-                        continue
-                    if not device or str(device).strip() in ("", "统计"):
-                        continue
-                    existing_records[(app, device)] = {
-                        "jinbi": float(row[3] or 0),
-                        "xianjin": float(row[5] or 0)
-                    }
-            except Exception as e:
-                print(f"⚠ 读取旧Excel失败: {e}")
-
-        # 2) 合并数据
+        # 1) 直接使用当天数据，无需合并昨天的数据
         daily_records = self.daily_data.get(date_str, {})
-        merged_records = dict(existing_records)
+
+        # merged_records 直接指向 daily_records，保证同 APP+设备覆盖
+        merged_records = {}
         for (app, device), info in daily_records.items():
             merged_records[(app, device)] = {
                 "jinbi": float(info.get("jinbi", 0)),
@@ -146,10 +119,6 @@ class RevenueTracker:
         for col in range(1, len(headers) + 1):
             ws.cell(row=1, column=col).font = Font(bold=True, size=12)
 
-        # 样式定义
-        total_fill = PatternFill(start_color="FFD966", end_color="FFD966", fill_type="solid")
-        stat_fill = PatternFill(start_color="C9DAF8", end_color="C9DAF8", fill_type="solid")
-
         # 安全获取兑换率的局部函数
         def _get_rate(app_name: str) -> float:
             try:
@@ -160,40 +129,30 @@ class RevenueTracker:
                 return 1.0
 
         # —— 累计行 ——
-        if total_row_data:
-            ws.append([date_str, "累计", "", 
-                    round(total_row_data["jinbi"], 4), 
-                    round(total_row_data["zhehe"], 2),
-                    round(total_row_data["yue"], 2), 
-                    round(total_row_data["tixian"], 2), 
-                    round(total_row_data["sum"], 2)])
-        else:
-            # 使用普通循环避免作用域问题
-            total_jinbi = 0.0
-            total_zhehe = 0.0
-            total_yue = 0.0
-            
-            for (app, _), info in merged_records.items():
-                total_jinbi += info["jinbi"]
-                total_zhehe += info["jinbi"] / _get_rate(app)
-                total_yue += info["xianjin"]
-            
-            total_tixian = 0.0
-            total_sum = total_yue + total_tixian
+        total_jinbi = 0.0
+        total_zhehe = 0.0
+        total_yue = 0.0
+        
+        for (app, _), info in merged_records.items():
+            total_jinbi += info["jinbi"]
+            total_zhehe += info["jinbi"] / _get_rate(app)
+            total_yue += info["xianjin"]
+        
+        total_tixian = 0.0
+        total_sum = total_yue + total_tixian
 
-            ws.append([date_str, "累计", "", 
-                    round(total_jinbi, 4), 
-                    round(total_zhehe, 2),
-                    round(total_yue, 2), 
-                    round(total_tixian, 2), 
-                    round(total_sum, 2)])
+        ws.append([date_str, "累计", "", 
+                round(total_jinbi, 4), 
+                round(total_zhehe, 2),
+                round(total_yue, 2), 
+                round(total_tixian, 2), 
+                round(total_sum, 2)])
+            
 
         # 样式设置
         ws.merge_cells(start_row=2, start_column=2, end_row=2, end_column=3)
         ws.cell(row=2, column=2).font = Font(bold=True, size=12)
         ws.cell(row=2, column=2).alignment = Alignment(horizontal="center")
-        for cell in ws[2]:
-            cell.fill = total_fill
         ws.append([])
 
         # —— 按APP分组统计 ——
@@ -221,8 +180,6 @@ class RevenueTracker:
             ws.merge_cells(start_row=row_idx, start_column=2, end_row=row_idx, end_column=3)
             ws.cell(row=row_idx, column=2).font = Font(bold=True, size=11)
             ws.cell(row=row_idx, column=2).alignment = Alignment(horizontal="center")
-            for cell in ws[row_idx]:
-                cell.fill = stat_fill
             row_idx += 1
 
             # 设备明细
@@ -247,9 +204,9 @@ class RevenueTracker:
         
         # 获取昨天日期
         yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-       # 拼接完整路径
+        # 拼接完整路径
         file_name = os.path.join("excel_reports", f"{yesterday}.xlsx") 
-             
+        
         if not os.path.exists(file_name):
             print(f"❌ 找不到昨天的数据文件: {file_name}")
             return 0, 0  # 默认返回0，表示没有昨天数据

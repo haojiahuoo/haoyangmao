@@ -97,4 +97,4 @@ def run(d: u2.Device):
         
         log(f"[{d.serial}] {app_name} 任务完成")
         d.app_stop("com.cat.readall")
-        return xianjin_value
+        return xianjin_value, jinbi_value

@@ -104,7 +104,7 @@ if __name__ == "__main__":
         # 到了 23:00 统计并退出
         if now.hour == 23 and now.minute == 0:
             log("🕚 到了23:00，开始执行收益统计任务...")
-            clear_recent_apps(d=None)  # 清理后台
+            clear_recent_apps()  # 清理后台
         
         else:
             count += 1

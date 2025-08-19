@@ -9,7 +9,6 @@ def click_by_xpath_text(
     timeout: float = 10.0,
     wait_gone: bool = False,
     raise_error: bool = False,
-    log: str = "",
     xpaths: Union[str, list[str], None] = None,  # 直接传 XPath
     **attrs  # 额外的控件属性，如 className="xxx", resourceId="xxx"
 ) -> bool:
@@ -58,19 +57,19 @@ def click_by_xpath_text(
         if selector.wait(timeout=timeout):
             nodes = selector.all()
             if not nodes:
-                print(f"{log}[失败] 未找到元素节点")
+                log(f"[失败] 未找到元素节点")
                 return False
 
             # 优先点击可点击节点
             for n in nodes:
                 if n.info.get('clickable', False):
                     n.click()
-                    print(f"{log}✅ 点击可点击节点")
+                    log("✅ 点击可点击节点")
                     if wait_gone:
                         if selector.wait_gone(timeout=timeout):
                             return True
                         else:
-                            print("[失败] 点击成功后元素没有消失")
+                            log("[失败] 点击成功后元素没有消失")
                             return False
                     else:
                         return True
@@ -81,25 +80,25 @@ def click_by_xpath_text(
                 x = (bounds['left'] + bounds['right']) // 2
                 y = (bounds['top'] + bounds['bottom']) // 2
                 d.click(x, y)
-                print(f"{log}⚠️ 坐标点击节点: {nodes[0].bounds}")
+                log(f"⚠️ 坐标点击节点: {nodes[0].bounds}")
                 if wait_gone:
                     if selector.wait_gone(timeout=timeout):
                         return True
                     else:
-                        print("[失败] 点击成功后元素没有消失")
+                        log("[失败] 点击成功后元素没有消失")
                         return False
                 else:
                     return True
 
-            print(f"{log}❌ 找到元素但无法点击: {nodes[0].info}")
+            log(f"❌ 找到元素但无法点击: {nodes[0].info}")
             return False
         else:
-            print(f"{log}[失败] 未找到匹配的元素")
+            log(f"[失败] 未找到匹配的元素")
             if raise_error:
                 raise TimeoutError(f"未找到匹配的元素")
             return False
     except Exception as e:
-        print(f"{log}[异常] 错误: {e}")
+        log(f"[异常] 错误: {e}")
         if raise_error:
             raise
         return False
@@ -126,6 +125,8 @@ def wait_exists(selector, timeout=3, interval=0.2) -> bool:
         elapsed += interval
     return False
 
+
+
 def long_press_until_gone(d: u2.Device, press_xpath: str, wait_xpath: str, timeout: int = 10, release_delay: float = 0.3):
     """
     长按 press_xpath 元素，直到 wait_xpath 元素消失 或 超时
@@ -148,7 +149,7 @@ def long_press_until_gone(d: u2.Device, press_xpath: str, wait_xpath: str, timeo
     """
     press_node = d.xpath(press_xpath)
     if not press_node.exists:
-        print(f"❌ 找不到长按目标: {press_xpath}")
+        log(f"❌ 找不到长按目标: {press_xpath}")
         return False
 
     bounds = press_node.get().info['bounds']
@@ -156,13 +157,13 @@ def long_press_until_gone(d: u2.Device, press_xpath: str, wait_xpath: str, timeo
     cy = (bounds['top'] + bounds['bottom']) // 2
 
     d.touch.down(cx, cy)
-    print(f"👆 开始长按 {press_xpath} ...")
+    log(f"👆 开始长按 {press_xpath} ...")
 
     gone = d.xpath(wait_xpath).wait_gone(timeout=timeout)
     if gone:
-        print(f"✅ 目标 {wait_xpath} 已消失")
+        log(f"✅ 目标 {wait_xpath} 已消失")
     else:
-        print(f"⏳ 等待超时 {timeout} 秒，强制松开")
+        log(f"⏳ 等待超时 {timeout} 秒，强制松开")
 
     # 松开前延迟
     if release_delay > 0:
