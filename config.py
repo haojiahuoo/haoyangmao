@@ -36,10 +36,10 @@ ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 TASKS = [
     # "UC",
     # "douyin",
-    # "xigua",
+    "xigua",
     # "wukong",
     # "kuaishou",
-    "jinritoutiao",
+    # "jinritoutiao",
     # "fanqieyinyue",  # 番茄音乐
     # "hongguo",  # 红果免费短剧
 ]
@@ -55,4 +55,8 @@ EXCHANGE_RATES = {
     "UC": 33000,            # UC浏览器：33000 金币 = 1 元
     "fanqieyinyue": 33000,  # 番茄音乐：33000 金币 = 1 元
     "hongguo" : 33000,      # 红果免费短剧：33000 金币 = 1 元
+}
+
+AndroidId = {
+    "5044c28bf43e1a56": "9a5dbfaf"
 }
