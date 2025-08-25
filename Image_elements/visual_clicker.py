@@ -1,8 +1,9 @@
 import time, random
 import uiautomator2 as u2
 from typing import List, Optional
-from Image_elements.ocr_helper import SmartController  # 替换为你实际的 OCR 控制器路径
+from Image_elements.ocr_helper import SmartController  
 from logger import log  # 替换为你实际的日志记录器路径
+
 class VisualClicker:
     def __init__(self, device: u2.Device, target_texts: List[str] = None, button_keywords: Optional[List[str]] = None):
         self.d = device
@@ -102,7 +103,7 @@ class VisualClicker:
         log("❌ 未检测到目标文本")
         return False
 
-    def match_text(self, retries=2, delay=2, return_full_text=False):
+    def match_text(self, retries=2, delay=2, return_full_text=False, return_bbox=False):
         self._last_elements = None  # 清空上一次结果
         for attempt in range(retries):
             screen_path = self.screenshot(f'screen_match_{attempt}.png')
@@ -117,20 +118,31 @@ class VisualClicker:
                 for btn in elements.get("buttons", []):
                     text = btn["text"]
                     if target in text:
-                        matched_targets.append((target, text))
+                        matched_targets.append((target, text, btn))
                         break
-                    
+                        
             if matched_targets:
-                for target, full_text in matched_targets:
+                for target, full_text, btn in matched_targets:
                     if target in self.target_texts:
-                        if return_full_text:
+                        if return_bbox:  # ✅ 返回坐标
+                            bbox = btn["bbox"]
+                            center = self.ocr_helper._get_center(bbox)
+                            log(f"✅ 匹配关键词: {target}, 坐标: {center}")
+                            return {
+                                "target": target,
+                                "full_text": full_text,
+                                "bbox": bbox,
+                                "center": center
+                            }
+                        elif return_full_text:  # ✅ 返回完整文本
                             log(f"✅ 匹配完整文本: {full_text}")
                             return full_text
-                        else:
+                        else:  # ✅ 默认逻辑
                             log(f"✅ 匹配关键词: {target}")
                             return target
             time.sleep(delay)
         return ""
+
     
     def click_by(self, text) -> bool:
         self.set_targets([f"{text}"])
