@@ -11,7 +11,10 @@ from visual_clicker import VisualClicker
 import uiautomator2 as u2
 from flask import Flask, request, jsonify
 from config import AndroidId
+import subprocess
+import re
 
+    
 app = Flask(__name__)
 
 @app.route("/ocr_request", methods=["POST"])
@@ -30,7 +33,7 @@ def ocr_request():
         return jsonify({"success": False, "error": "缺少设备ID或目标文字"}), 400
 
     print(f"收到设备 {value} 的 OCR 请求，目标文字: {targets}")
-
+    
     try:
         d = u2.connect(value)
     except Exception as e:
@@ -38,14 +41,15 @@ def ocr_request():
         return jsonify({"success": False, "error": f"连接设备失败: {e}"}), 500
 
     vc = VisualClicker(d)
-    vc.set_targets(targets)
+    vc.set_targets([targets])
     matched_text = vc.match_text()
     if matched_text == targets:
-        vc.find_and_click()
-
-    
-        print(f"找到文字: {targets},并点击成功")
-        res = {"success": True}
+        cx_cy = vc.find_and_click(app_cx_cy=False)
+        res = {
+        "success": True,
+        "result": [{"x": cx_cy[0], "y": cx_cy[1], "text": "目标文字"}]
+        }
+        print(f"找到文字: {targets},并获取坐标{cx_cy}")
     else:
         print(f"未识别到目标文字: {targets}")
         res = {"success": False, "result": []}

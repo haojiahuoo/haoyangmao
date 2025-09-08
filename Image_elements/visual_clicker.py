@@ -24,7 +24,7 @@ class VisualClicker:
         self.d.screenshot(path)
         return path
 
-    def find_and_click(self, target=None, retries=1, delay=2, elements=None):
+    def find_and_click(self, target=None, retries=1, delay=2, elements=None, app_cx_cy=True):
         for attempt in range(retries):
             log(f" 第{attempt + 1}次识别目标文本并尝试点击...")
 
@@ -74,8 +74,11 @@ class VisualClicker:
             if chosen_btn:
                 cx = int(chosen_btn['center'][0] * self.screen_width)
                 cy = int(chosen_btn['center'][1] * self.screen_height)
-                log(f"✅ 点击 '{chosen_btn.get('text')}'，坐标 ({cx}, {cy})")
-                self.d.click(cx, cy)
+                if app_cx_cy:
+                    log(f"✅ 点击 '{chosen_btn.get('text')}'，坐标 ({cx}, {cy})")
+                    self.d.click(cx, cy)
+                else:
+                    return (cx, cy)
                 if screen_path:
                     self.ocr_helper.visualize_results(screen_path, f'screen_click_result_{attempt}.png')
                 return (cx, cy)

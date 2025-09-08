@@ -6,4 +6,7 @@ adb shell dumpsys window | findstr mCurrentFocus
 adb logcat | findstr "cmp="
 
 # 推送文件到手机
-adb push F:\github\APP_JS\Helper\AutoXClick.js  /sdcard/APP_JS/APP_JS/Helper/AutoXClick.js
+adb push F:\github\APP_JS\Helper\AutoXClick.js  /sdcard/APP_JS/Helper/AutoXClick.js
+
+# github 生成 ssh key
+ssh-keygen -t ed25519 -C "haojiahuooli@gmail.com"git push origin master
