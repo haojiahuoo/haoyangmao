@@ -34,14 +34,14 @@ DEVICES = [  # 手动指定设备
 ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 
 TASKS = [
-    # "UC",
-    # "douyin",
+    "UC",
+    "douyin",
     "xigua",
-    # "wukong",
-    # "kuaishou",
-    # "jinritoutiao",
-    # "fanqieyinyue",  # 番茄音乐
-    # "hongguo",  # 红果免费短剧
+    "wukong",
+    "kuaishou",
+    "jinritoutiao",
+    "fanqieyinyue",  # 番茄音乐
+    "hongguo",  # 红果免费短剧
 ]
 
 MAX_RETRY = 3
@@ -58,5 +58,6 @@ EXCHANGE_RATES = {
 }
 
 AndroidId = {
-    "5044c28bf43e1a56": "9a5dbfaf"
+    "5044c28bf43e1a56": "9a5dbfaf",
+    "f01c3a6331e38ab9": "A3KUVB2428008483"
 }
