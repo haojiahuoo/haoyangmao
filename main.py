@@ -75,6 +75,7 @@ def clear_recent_apps(d: u2.Device):
         clear_btns = [
             "com.oppo.launcher:id/btn_clear",
             "//*[@resource-id='com.hihonor.android.launcher:id/clearbox']",
+            "com.miui.home:id/clearAnimView"
         ]
 
         found = False

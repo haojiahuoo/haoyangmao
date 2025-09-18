@@ -4,6 +4,7 @@ import math
 from typing import Optional, Callable
 import uiautomator2 as u2
 from typing import Tuple, Union
+from logger import log, log_error, log_debug
 
 class SmartSwipe:
     def __init__(self, d: u2.Device):
@@ -108,7 +109,7 @@ class SmartSwipe:
                 if element.exists:
                     element_info = element.info
                     if not element_info:
-                        print(f"⚠️ 找到元素但无法获取信息: {text}")
+                        log(f"⚠️ 找到元素但无法获取信息: {text}")
                         continue
                     
                     # 检查元素是否在屏幕上可见
@@ -116,37 +117,37 @@ class SmartSwipe:
                     if bounds:
                         if (bounds['left'] >= self.width or bounds['right'] <= 0 or
                             bounds['top'] >= self.height or bounds['bottom'] <= 0):
-                            print(f"⚠️ 元素不在屏幕可见范围内: {text}")
+                            log(f"⚠️ 元素不在屏幕可见范围内: {text}")
                             raise Exception("Element not visible on screen")
                     
                     # 尝试点击
                     try:
                         element.click()
-                        print(f"✅ 成功点击: {text} (尝试 {attempt + 1})")
+                        log(f"✅ 成功点击: {text} (尝试 {attempt + 1})")
                         return True
                     except Exception as click_e:
-                        print(f"❌ 点击失败 [{text}]: {str(click_e)}")
+                        log(f"❌ 点击失败 [{text}]: {str(click_e)}")
                         # 尝试通过坐标点击
                         if bounds:
                             center_x = (bounds['left'] + bounds['right']) // 2
                             center_y = (bounds['top'] + bounds['bottom']) // 2
                             self.d.click(center_x, center_y)
-                            print(f"✅ 通过坐标点击成功: {text}")
+                            log(f"✅ 通过坐标点击成功: {text}")
                             return True
                         return False
                     
             except Exception as e:
-                print(f"❌ 查找元素出错 [{text}]: {str(e)}")
+                log(f"❌ 查找元素出错 [{text}]: {str(e)}")
             
             if attempt < max_swipes:
-                print(f"未找到 '{text}'，向上滑动屏幕 (尝试 {attempt + 1}/{max_swipes})")
+                log(f"未找到 '{text}'，向上滑动屏幕 (尝试 {attempt + 1}/{max_swipes})")
                 self.smart_swipe("up", 
                                duration_min=swipe_duration, 
                                duration_max=swipe_duration + 0.2,
                                deviation_angle=10)
                 time.sleep(wait_time)
         
-        print(f"⚠️ 未找到元素 '{text}' (已尝试 {max_swipes} 次滑动)")
+        log(f"⚠️ 未找到元素 '{text}' (已尝试 {max_swipes} 次滑动)")
         return False
 
     def swipe_until(self, condition: Callable[[], bool], direction: str = "up",
@@ -205,4 +206,65 @@ class SmartSwipe:
             raise TypeError("target 必须是坐标 (x, y) 或字符串方向（如 'top'）")
 
         d.drag(from_x, from_y, to_x, to_y, duration=duration)
-        print(f"拖动：({from_x}, {from_y}) -> ({to_x}, {to_y})")
+        log(f"拖动：({from_x}, {from_y}) -> ({to_x}, {to_y})")
+
+
+    def swipe_to_element(
+            self,
+            d: u2.Device,
+            name,
+            max_swipes: int = 6,
+            swipe_duration: float = 0.5,
+            interval: float = 1.0
+        ) -> bool:
+        """
+        滑动直到找到指定元素
+        
+        Args:
+            d: uiautomator2设备实例
+            element: 目标元素
+            direction: 滑动方向
+            max_swipes: 最大滑动次数
+            swipe_duration: 每次滑动的持续时间(秒)
+            interval: 每次滑动后的等待时间(秒)
+            
+        Returns:
+            bool: 是否成功找到元素
+        """
+        d.press("recent")  # 打开最近任务
+        time.sleep(random.uniform(2, 3))
+        max_retries = 5
+        retry_count = 0
+
+        while retry_count < max_retries:
+            if d.xpath('//*[@resource-id="com.miui.home:id/clearAnimView"]').exists:
+                log("✅ 进入最近任务界面")
+                break
+            else:
+                d.press("recent")
+                time.sleep(1)
+                retry_count += 1
+        else:
+            log("❌ 未能进入最近任务界面，已达到最大重试次数")
+
+        time.sleep(random.uniform(2, 3))
+
+        for _ in range(max_swipes):
+            nodes = d.xpath('//*[@resource-id="com.miui.home:id/title"]').all()
+            for node in nodes:
+                if node.text == name:
+                    print("✅ 找到目标应用，点击它")
+                    node.click()
+                    return True
+
+            # 如果没找到，向右滑动一次
+            print("➡️ 向右滑动一页")
+            window_size = d.window_size()
+            start_x = int(window_size[0] * 0.2)  # 从左边开始
+            end_x = int(window_size[0] * 0.8)    # 向右滑到右边
+            y = int(window_size[1] * 0.5)
+            d.swipe(start_x, y, end_x, y, duration=swipe_duration)
+            time.sleep(interval)
+
+        print("❌ 未找到目标应用")
+        return False

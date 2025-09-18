@@ -2,7 +2,7 @@ import uiautomator2 as u2
 import time,random
 from typing import Optional
 from utils.tools import *
-from utils.popuphandler import PopupHandler
+from utils.smart_swipe import SmartSwipe
 
 class KuaiShouAdWatcher:
     def __init__(self, d: u2.Device):
@@ -25,8 +25,8 @@ class KuaiShouAdWatcher:
             "恭喜完成观看任务" 
         ]
 
-    def watch_ad(self, timeout: float = 300, check_interval: float = 3.0) -> bool:
-        ph = PopupHandler(self.d)
+    def watch_ad(self, timeout: float = 1000, check_interval: float = 3.0) -> bool:
+        ss = SmartSwipe(self.d)
         time.sleep(10)  # 等待界面稳定
         log("[开启刷广告模式.....]")
         start_time = time.time()
@@ -52,12 +52,12 @@ class KuaiShouAdWatcher:
                                 task_completed = True
                                 break
                             # 再检查是否超时
-                            if time.time() - while_start_time >= 35:
+                            if time.time() - while_start_time >= random.uniform(40, 50):
                                 log("⏰ 超时35秒未检测到'已领取'")
                                 task_completed = True
                                 break  
                             if self.d(textContains="添加到主屏幕").exists:
-                                ph.check_and_handle_popup()
+                                click_by_xpath_text(self.d, "取消")
                             
                             time.sleep(1)  # 避免频繁检查
                         # 任务完成或超时后的处理
@@ -126,6 +126,8 @@ class KuaiShouAdWatcher:
                     if "领取额外金币" in elements[0].text:
                         log("🗨️ 发现-领取额外金币-弹窗")
                         click_by_xpath_text(self.d, "领取额外金币")
+                        time.sleep(random.uniform(1, 3))
+                        ss.swipe_to_element(self.d, "快手极速版")
                         
                 if self.d(text="安装新版本").exists:
                     time.sleep(random.uniform(1, 3))
@@ -134,7 +136,18 @@ class KuaiShouAdWatcher:
                 if self.d(text="欢迎使用支付宝").exists:
                     time.sleep(random.uniform(1, 3))
                     self.d.press("back")  # 返回
-                
+                if self.d(text="请验证指纹").exists:
+                    time.sleep(random.uniform(1, 3))
+                    ss.swipe_to_element(self.d, "快手极速版")
+                    
+                if self.d(text="去完成任务").exists:
+                    time.sleep(random.uniform(1, 3))
+                    click_by_xpath_text(self.d, "去完成任务")
+                    
+                if self.d(text="荣耀安全提示").exists:
+                    time.sleep(random.uniform(1, 3))
+                    click_by_xpath_text(self.d, "允许")
+                    
                 if self.d(textContains="猜你喜欢").exists and time.time() - start_time > 30:
                     log("✅ 全部任务已完成，返回首页")
                     return

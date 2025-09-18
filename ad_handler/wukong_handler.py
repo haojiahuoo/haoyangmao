@@ -3,7 +3,7 @@ import time
 from typing import Optional
 from Image_elements.visual_clicker import VisualClicker
 from utils.tools import *
-from utils.popuphandler import PopupHandler
+from popup.kuaishou_popup import PopupHandler
 
 
 class WuKongAdWatcher:

@@ -13,7 +13,7 @@ class SmartController:
             rec_model_name='densenet_lite_136-gru',
             box_score_thresh=0.3
         )
-       
+    
     def _analyze_elements(self, ocr_results: List[Dict], img_shape: Tuple[int], button_keywords: Optional[List[str]] = None) -> Dict:
         """分析OCR结果，识别按钮和关键文本"""
         h, w = img_shape[:2]

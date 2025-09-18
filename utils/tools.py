@@ -57,19 +57,19 @@ def click_by_xpath_text(
         if selector.wait(timeout=timeout):
             nodes = selector.all()
             if not nodes:
-                log(f"[失败] 未找到元素节点")
+                log(f"[失败] 未找到 {texts} 元素节点")
                 return False
 
             # 优先点击可点击节点
             for n in nodes:
                 if n.info.get('clickable', False):
                     n.click()
-                    log("✅ 点击可点击节点")
+                    log(f"✅ 点击 {texts} 节点")
                     if wait_gone:
                         if selector.wait_gone(timeout=timeout):
                             return True
                         else:
-                            log("[失败] 点击成功后元素没有消失")
+                            log(f"[失败] 点击 {texts} 成功后元素没有消失")
                             return False
                     else:
                         return True
@@ -80,22 +80,22 @@ def click_by_xpath_text(
                 x = (bounds['left'] + bounds['right']) // 2
                 y = (bounds['top'] + bounds['bottom']) // 2
                 d.click(x, y)
-                log(f"⚠️ 坐标点击节点: {nodes[0].bounds}")
+                log(f"⚠️ 坐标点击 {texts} 节点: {nodes[0].bounds}")
                 if wait_gone:
                     if selector.wait_gone(timeout=timeout):
                         return True
                     else:
-                        log("[失败] 点击成功后元素没有消失")
+                        log(f"[失败] 点击{texts}成功后元素没有消失")
                         return False
                 else:
                     return True
 
-            log(f"❌ 找到元素但无法点击: {nodes[0].info}")
+            log(f"❌ 找到{texts}元素但无法点击: {nodes[0].info}")
             return False
         else:
-            log(f"[失败] 未找到匹配的元素")
+            log(f"[失败] 未找到{texts}匹配的元素")
             if raise_error:
-                raise TimeoutError(f"未找到匹配的元素")
+                raise TimeoutError(f"未找到{texts}匹配的元素")
             return False
     except Exception as e:
         log(f"[异常] 错误: {e}")
@@ -117,7 +117,7 @@ def wait_exists(selector, timeout=3, interval=0.2) -> bool:
     elapsed = 0
     while elapsed < timeout:
         try:
-            if selector.info:  # 立即返回，不等待
+            if selector.exists:  # 立即返回，不等待
                 return True
         except:
             pass

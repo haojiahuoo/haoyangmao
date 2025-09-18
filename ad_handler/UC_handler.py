@@ -3,7 +3,7 @@ import time, random
 from utils.tools import *
 from logger import bind_logger
 from Image_elements.visual_clicker import VisualClicker
-from utils.popuphandler import PopupHandler
+from popup.kuaishou_popup import PopupHandler
 
 class UCAdWatcher:
     def __init__(self, device: Union[str, u2.Device]):
