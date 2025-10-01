@@ -18,7 +18,8 @@ def run(d: u2.Device):
         aw = DouYinAdWatcher(d) 
         
         if d(textContains="首页").exists:
-            click_by_xpath_text(d, xpaths="//android.widget.TabHost/android.widget.FrameLayout[2]/android.widget.FrameLayout[2]/android.widget.FrameLayout[1]/android.widget.ImageView[2]")
+            time.sleep(random.uniform(1, 3))
+            d.click(541, 2220)
         vc.set_targets(["金币收益"])    
         matched_text = vc.match_text()
         if matched_text == "金币收益":

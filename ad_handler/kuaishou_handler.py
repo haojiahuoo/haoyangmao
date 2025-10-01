@@ -5,9 +5,10 @@ from utils.tools import *
 from utils.smart_swipe import SmartSwipe
 
 class KuaiShouAdWatcher:
-    def __init__(self, d: u2.Device):
+    def __init__(self, d: u2.Device, device_id: Optional[str] = None):
     
         self.d = d
+        self.device_id = device_id
         self.completion_titles = [
             "任务完成",
             "开宝箱奖励已到账",
@@ -26,8 +27,8 @@ class KuaiShouAdWatcher:
         ]
 
     def watch_ad(self, timeout: float = 1000, check_interval: float = 3.0) -> bool:
-        ss = SmartSwipe(self.d)
-        time.sleep(10)  # 等待界面稳定
+        ss = SmartSwipe(self.d)  # 传入None或适当的device_id)
+        time.sleep(5)  # 等待界面稳定
         log("[开启刷广告模式.....]")
         start_time = time.time()
         while time.time() - start_time < timeout:
@@ -126,16 +127,32 @@ class KuaiShouAdWatcher:
                     if "领取额外金币" in elements[0].text:
                         log("🗨️ 发现-领取额外金币-弹窗")
                         click_by_xpath_text(self.d, "领取额外金币")
-                        time.sleep(random.uniform(1, 3))
-                        ss.swipe_to_element(self.d, "快手极速版")
+                        time.sleep(random.uniform(2, 4))
+                        ss.swipe_to_element(self.d, self.device_id, "快手极速版")
+                        time.sleep(random.uniform(2, 4))
+                        if not self.d(textContains="已成功领取").exists:
+                            self.d.press("back")  # 返回
                         
+                if self.d(text="应用市场安装").exists:
+                    time.sleep(random.uniform(1, 3))
+                    click_by_xpath_text(self.d, "取消") 
+                            
                 if self.d(text="安装新版本").exists:
                     time.sleep(random.uniform(1, 3))
                     click_by_xpath_text(self.d, "取消") 
                     
+                if self.d(text="应用商店安装").exists:
+                    time.sleep(random.uniform(1, 3))
+                    click_by_xpath_text(self.d, "取消安装")
+            
+                if self.d(text="开启存储权限").exists:
+                    time.sleep(random.uniform(1, 3))
+                    click_by_xpath_text(self.d, "允许")
+                        
                 if self.d(text="欢迎使用支付宝").exists:
                     time.sleep(random.uniform(1, 3))
                     self.d.press("back")  # 返回
+                    
                 if self.d(text="请验证指纹").exists:
                     time.sleep(random.uniform(1, 3))
                     ss.swipe_to_element(self.d, "快手极速版")
@@ -147,7 +164,11 @@ class KuaiShouAdWatcher:
                 if self.d(text="荣耀安全提示").exists:
                     time.sleep(random.uniform(1, 3))
                     click_by_xpath_text(self.d, "允许")
-                    
+                
+                if self.d(textContains="直播涉及违规").exists:
+                    time.sleep(random.uniform(1, 3))
+                    self.d.press("back")  # 返回
+                
                 if self.d(textContains="猜你喜欢").exists and time.time() - start_time > 30:
                     log("✅ 全部任务已完成，返回首页")
                     return

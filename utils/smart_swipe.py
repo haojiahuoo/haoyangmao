@@ -174,6 +174,7 @@ class SmartSwipe:
             time.sleep(interval)
         return False
     
+    # 拖动目标滑动函数
     def smart_drag(
             self,
             d: u2.Device,
@@ -209,9 +210,52 @@ class SmartSwipe:
         log(f"拖动：({from_x}, {from_y}) -> ({to_x}, {to_y})")
 
 
+
+    # 通用滑动函数
+    def swipe(d: u2.Device, direction: str, duration: float = 0.3, scale: float = 0.6):
+        """
+        通用滑动函数
+        
+        Args:
+            d: uiautomator2.Device 实例
+            direction: 滑动方向 ("up", "down", "left", "right")
+            duration: 滑动持续时间（秒）
+            scale: 滑动距离相对屏幕大小的比例 (0~1之间)，默认 0.6
+        
+        Example:
+            swipe(d, "up")      # 向上滑
+            swipe(d, "down")    # 向下滑
+            swipe(d, "left")    # 向左滑
+            swipe(d, "right")   # 向右滑
+        """
+        w, h = d.window_size()
+        cx, cy = w // 2, h // 2  # 屏幕中心点
+
+        if direction == "up":
+            start_x, start_y = cx, int(h * (0.5 + scale/2))
+            end_x, end_y = cx, int(h * (0.5 - scale/2))
+        elif direction == "down":
+            start_x, start_y = cx, int(h * (0.5 - scale/2))
+            end_x, end_y = cx, int(h * (0.5 + scale/2))
+        elif direction == "left":
+            start_x, start_y = int(w * (0.5 + scale/2)), cy
+            end_x, end_y = int(w * (0.5 - scale/2)), cy
+        elif direction == "right":
+            start_x, start_y = int(w * (0.5 - scale/2)), cy
+            end_x, end_y = int(w * (0.5 + scale/2)), cy
+        else:
+            raise ValueError("❌ direction 参数必须是 up/down/left/right 之一")
+
+        d.swipe(start_x, start_y, end_x, end_y, duration=duration)
+        time.sleep(0.2)  # 稍微等一下，避免过快
+
+
+
+    # 后台查找元素滑动函数
     def swipe_to_element(
             self,
             d: u2.Device,
+            device_id,
             name,
             max_swipes: int = 6,
             swipe_duration: float = 0.5,
@@ -233,38 +277,54 @@ class SmartSwipe:
         """
         d.press("recent")  # 打开最近任务
         time.sleep(random.uniform(2, 3))
-        max_retries = 5
         retry_count = 0
+        max_retries = 5
 
         while retry_count < max_retries:
-            if d.xpath('//*[@resource-id="com.miui.home:id/clearAnimView"]').exists:
-                log("✅ 进入最近任务界面")
-                break
-            else:
-                d.press("recent")
-                time.sleep(1)
-                retry_count += 1
+            if device_id == "ee10b5d7":
+                # 小米
+                if d.xpath('//*[@resource-id="com.miui.home:id/clearAnimView"]').exists:
+                    log("✅ 进入最近任务界面 (小米)")
+                    break
+            elif device_id == "A3KUVB2428008483":
+                # 荣耀
+                if d.xpath('//*[@resource-id="com.hihonor.android.launcher:id/clearbox"]').exists:
+                    log("✅ 进入最近任务界面 (荣耀)")
+                    break
+            
+            # 没找到，重试
+            d.press("recent")
+            time.sleep(1)
+            retry_count += 1
         else:
             log("❌ 未能进入最近任务界面，已达到最大重试次数")
+
 
         time.sleep(random.uniform(2, 3))
 
         for _ in range(max_swipes):
-            nodes = d.xpath('//*[@resource-id="com.miui.home:id/title"]').all()
+            # 检查手机型号
+            if device_id == "ee10b5d7":
+                nodes = d.xpath('//*[@resource-id="com.miui.home:id/title"]').all()
+            elif device_id == "A3KUVB2428008483":
+                nodes = d.xpath('//*[@resource-id="com.hihonor.android.launcher:id/title"]').all()
+                
             for node in nodes:
                 if node.text == name:
-                    print("✅ 找到目标应用，点击它")
+                    log("✅ 找到目标应用，点击它")
                     node.click()
                     return True
 
-            # 如果没找到，向右滑动一次
-            print("➡️ 向右滑动一页")
-            window_size = d.window_size()
-            start_x = int(window_size[0] * 0.2)  # 从左边开始
-            end_x = int(window_size[0] * 0.8)    # 向右滑到右边
-            y = int(window_size[1] * 0.5)
-            d.swipe(start_x, y, end_x, y, duration=swipe_duration)
-            time.sleep(interval)
+            if device_id == "ee10b5d7":
+                # 如果没找到，向右滑动一次
+                log("➡️ 向右滑动一页")
+                self.swipe(d, "left")
+                time.sleep(interval)
+            elif device_id == "A3KUVB2428008483":
+                log("➡️ 向上滑动一页")
+                self.swipe(d, "up")
+                time.sleep(interval)
+            
 
-        print("❌ 未找到目标应用")
+        log("❌ 未找到目标应用")
         return False

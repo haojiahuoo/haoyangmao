@@ -7,7 +7,7 @@ import datetime
 from datetime import timedelta
 from config import ACTIVE_DEVICES as DEVICES, TASKS, MAX_RETRY
 from device import connect_device
-from logger import log, set_default_device
+from logger import *
 from utils.revenuetracker import RevenueTracker  # 收益统计类
 from config import EXCHANGE_RATES
 
@@ -36,7 +36,10 @@ def run_on_device(serial):
                 # 先清理后台
                 clear_recent_apps(d)
                 task_module = importlib.import_module(f"tasks.{task_name}")
-                result = task_module.run(d)
+                if task_name == "kuaishou":
+                    result = task_module.run(d, device_id)
+                else:
+                    result = task_module.run(d)
 
                 # 如果任务返回 (jinbi, xianjin)
                 if isinstance(result, tuple) and len(result) == 2:
@@ -50,11 +53,11 @@ def run_on_device(serial):
                     log(f"📊 {task_name} ({serial}): 收益 +{result} 元")
 
                 else:
-                    log(f"⚠ 任务 {task_name} 返回值格式不正确: {result}")
+                    log_error(f"⚠ 任务 {task_name} 返回值格式不正确: {result}")
 
                 break
             except Exception as e:
-                log(f"任务 {task_name} 出错: {e}")
+                log_error(f"任务 {task_name} 出错: {e}")
                 if attempt == MAX_RETRY:
                     log(f"任务 {task_name} 达到最大重试次数，跳过")
             finally:
@@ -72,6 +75,9 @@ def clear_recent_apps(d: u2.Device):
         time.sleep(1)
         d.press("recent")
         time.sleep(1.5)
+        if d(description="最近无运行应用").exists:
+            log("后台无运行应用")
+            return
         clear_btns = [
             "com.oppo.launcher:id/btn_clear",
             "//*[@resource-id='com.hihonor.android.launcher:id/clearbox']",

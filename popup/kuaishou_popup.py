@@ -1,5 +1,5 @@
 import uiautomator2 as u2
-import time
+import time, random
 from utils.tools import *
 from ad_handler.kuaishou_handler import KuaiShouAdWatcher
 class PopupHandler:
@@ -10,6 +10,7 @@ class PopupHandler:
         """
         self.d = device
         self.common_popups = [
+            {"name": "瓜分百亿金币", "element": "去瓜分百亿金币"},
             {"name": "获得优惠券", "element": "恭喜获得惊喜优惠券"},
             {"name": "今日签到可领", "element": "立即签到"},
             {"name": "添加到主屏幕", "element": "取消"},
@@ -42,9 +43,9 @@ class PopupHandler:
                     if name == "看广告领领金币" and self.d(textContains="看广告领").exists(timeout=timeout):
                         log("🗨️ 发现-看广告领-弹窗")
                         click_by_xpath_text(self.d, "看广告领")
+                        aw.watch_ad()
                         time.sleep(1)
-
-                        # 点我领 iPhone
+                   
                         if click_by_xpath_text(self.d, "点我领iPhone"):
                             time.sleep(1)
                             if wait_exists(self.d.xpath('//*[contains(@elements, "去签到")]')):
@@ -53,16 +54,16 @@ class PopupHandler:
                                 time.sleep(1)
                                 self.d.press("back")
 
-                        # 去看视频
-                        if wait_exists(self.d.xpath('//*[contains(@elements, "去看视频")]')):
-                            log("🗨️ 发现-去看视频-弹窗")
-                            click_by_xpath_text(self.d, "去看视频")
-                            time.sleep(1)
-                            aw.watch_ad()
-                            # 明日签到
-                            if wait_exists(self.d.xpath('//*[contains(@elements, "明日签到可领")]')):
-                                log("🗨️ 发现-去明日签-弹窗")
-                                click_by_xpath_text(self.d, xpaths='//*[@elements="明日签到可领"]/../../../following-sibling::*[contains(@class, "android.widget.Image")]')
+                    # 去看视频
+                    if self.d(textContains="去看视频").exists:
+                        log("🗨️ 发现-去看视频-弹窗")
+                        click_by_xpath_text(self.d, "去看视频")
+                        time.sleep(1)
+                        aw.watch_ad()
+                        # 明日签到
+                        if wait_exists(self.d.xpath('//*[contains(@elements, "明日签到可领")]')):
+                            log("🗨️ 发现-去明日签-弹窗")
+                            click_by_xpath_text(self.d, xpaths='//*[@elements="明日签到可领"]/../../../following-sibling::*[contains(@class, "android.widget.Image")]')
 
                         # 看视频最高
                         if self.d.xpath("//*[contains(@elements, '看视频最高')]").exists:
@@ -70,6 +71,28 @@ class PopupHandler:
                             click_by_xpath_text(self.d, xpaths="//*[contains(@elements, '看视频最高')]/../../preceding-sibling::*[1]//android.widget.Image")
                             time.sleep(1)
 
+                        handled_this_round = True
+                        handled_any = True
+                        break
+                    
+                    # 特殊处理：优惠券弹窗
+                    elif name == "瓜分百亿金币" and wait_exists(self.d(text="瓜分百亿金币")):
+                        log(f"🗨️ 发现-{name}-弹窗")
+                        time.sleep(random.uniform(1, 2))
+                        click_by_xpath_text(self.d, "去打卡")
+                        time.sleep(random.uniform(1, 2))
+                        click_by_xpath_text(self.d, "我知道了")
+                        time.sleep(random.uniform(1, 2))
+                        self.d.press("back") # 返回
+                        handled_this_round = True
+                        handled_any = True
+                        break
+                    
+                    # 特殊处理：优惠券弹窗
+                    elif name == "瓜分百亿金币" and wait_exists(self.d(textContains="立即参与")):
+                        log(f"🗨️ 发现-{name}-弹窗")
+                        time.sleep(random.uniform(1, 2))
+                        self.d.press("back") # 返回
                         handled_this_round = True
                         handled_any = True
                         break
@@ -123,39 +146,36 @@ class PopupHandler:
                         handled_any = True
                         break
 
-                    elif name == "连续打卡" and wait_exists(self.d(textContains="连续打卡")):
-                        for e in element:  # element 是列表
-                            if click_by_xpath_text(self.d, e):
-                                log("🔄 点击连续打卡白拿手机")
-                                time.sleep(5)
-                                if self.d(textContains="与奖品擦肩而过").exists:
-                                    click_by_xpath_text(self.d, "重新选择商品")
-                                else:
-                                    if click_by_xpath_text(self.d, "去签到"):
-                                        time.sleep(2)
-                                        self.d.press("back")
-                                        # 回首页
-                                        while True:
-                                            if self.d(textContains="猜你喜欢").exists:
-                                                log("✅ 全部任务已完成，返回首页")
-                                                break
-                                            else:
-                                                self.d.press("back")
-                                                time.sleep(2)
-                                handled_this_round = True
-                                handled_any = True
-                                break
-
-
-                    # 通用弹窗处理
+                    # 特殊处理：连续打卡
                     elif isinstance(element, list):
                         for e in element:
                             if self.d(textContains=e).exists(timeout=timeout):
                                 log(f"🗨️ 发现-{name}-弹窗")
-                                click_by_xpath_text(self.d, e)
-                                handled_this_round = True
-                                handled_any = True
-                                break
+                                if click_by_xpath_text(self.d, e):
+                                    log("🔄 点击连续打卡白拿手机")
+                                    time.sleep(5)
+                                    if self.d(textContains="与奖品擦肩而过").exists:
+                                        click_by_xpath_text(self.d, "重新选择商品")
+                                    else:
+                                        if click_by_xpath_text(self.d, "去签到"):
+                                            time.sleep(random.uniform(3, 5))
+                                            self.d.press("back")
+                                            # 回首页
+                                            while True:
+                                                if self.d(textContains="猜你喜欢").exists:
+                                                    log("✅ 全部任务已完成，返回首页")
+                                                    break
+                                                else:
+                                                    if self.d(textContains="去赚钱").exists:
+                                                        click_by_xpath_text(self.d, "去赚钱")
+                                                        time.sleep(random.uniform(1, 3))
+                                                    else:
+                                                        self.d.press("back")
+                                                        time.sleep(random.uniform(2, 3))
+                                    handled_this_round = True
+                                    handled_any = True
+                                    break
+                    
                     else:
                         if self.d(textContains=element).exists:
                             log(f"🗨️ 发现-{name}-弹窗")

@@ -36,7 +36,7 @@ ACTIVE_DEVICES = DEVICES if DEVICES is not None else get_connected_devices()
 TASKS = [
     # "UC",
     # "douyin",
-    # "xigua",
+    "xigua",
     # "wukong",
     "kuaishou",
     # "jinritoutiao",

@@ -6,14 +6,14 @@ from popup.kuaishou_popup import PopupHandler
 from utils.smart_swipe import *
 from logger import log
 
-def run(d: u2.Device):
+def run(d: u2.Device, device_id):
     try:
         app_name = "快手极速版"
         log(f"[{d.serial}] 启动 {app_name} 任务")
         d.app_start("com.kuaishou.nebula")
         time.sleep(10)
 
-        aw = KuaiShouAdWatcher(d)
+        aw = KuaiShouAdWatcher(d, device_id)
         ss = SmartSwipe(d) 
         handler = PopupHandler(d)
         
@@ -49,8 +49,8 @@ def run(d: u2.Device):
             el = d(text="猜你喜欢")
             ss.smart_drag(d, origin=el, target=(650, 0.3)) 
             
-            log("⏳ 点击看视频赚金币")  
-            if click_by_xpath_text(d, "看视频赚金币"):
+            log("⏳ 刷广告视频赚金币")  
+            if click_by_xpath_text(d, "看视频赚钱"):
                 a = time.time()
                 while True:
                     ss.smart_swipe()
